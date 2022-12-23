@@ -15,6 +15,6 @@ class Normalizer::MessageNormalizer
   end
 
   def inject_variables(content, data)
-    content['text'].gsub! '{name}', data&.name if content['text']
+    content['text'].gsub! '{name}', data.name || '' if content['text']
   end
 end

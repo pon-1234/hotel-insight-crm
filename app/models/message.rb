@@ -46,7 +46,6 @@ class Message < ApplicationRecord
 
   before_create :exec_before_create
   after_create_commit :execute_after_create_commit
-  before_save :bind_variables
 
   def push_event_data
     data = {
@@ -100,9 +99,5 @@ class Message < ApplicationRecord
       return unless from.eql?('friend')
       # Enqueue auto response job
       AutoResponseJob.perform_later(id) if type.eql?('text')
-    end
-
-    def bind_variables
-      Normalizer::MessageNormalizer.new(self.content, self.channel.line_friend).perform
     end
 end
