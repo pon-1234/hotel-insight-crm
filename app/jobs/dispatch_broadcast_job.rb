@@ -117,7 +117,7 @@ class DispatchBroadcastJob < ApplicationJob
         friends_info&.each do |friend|
           messages_change = Marshal.load(Marshal.dump messages_data)
           messages_change.map! do |message|
-            message['text'].gsub! '{name}', friend.line_name || '' if message['text']
+            message['text'].gsub! '{name}', friend.name if message['text']
             message
           end
           LineApi::Multicast.new(line_account).perform(messages_change, friend.line_user_id)
