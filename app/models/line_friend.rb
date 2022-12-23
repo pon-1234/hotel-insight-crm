@@ -77,7 +77,7 @@ class LineFriend < ApplicationRecord
   end
 
   def name
-    display_name
+    self.display_name.present? ? self.display_name : self.line_name
   end
 
   def avatar_url
