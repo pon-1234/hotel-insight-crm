@@ -41,7 +41,7 @@ class ScenarioSchedulerJob < ApplicationJob
           attach_shorten_url_to_message(scenario_message, site_measurement, @channel.line_friend.line_user_id)
         end
       end
-      normalized = Normalizer::MessageNormalizer.new(scenario_message.content, @channel.line_friend).perform
+      normalized = scenario_message.content
       if contain_survey_action?(normalized)
         normalized = normalize_messages_with_survey_action(@channel, normalized)
       end
