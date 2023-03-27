@@ -4,6 +4,7 @@
       <div class="card">
         <div class="card-header left-border"><h3 class="card-title">基本設定</h3></div>
         <div class="card-body">
+          <!-- フォルダー -->
           <div class="form-group d-flex">
             <label class="fw-300">フォルダー</label>
             <div class="flex-grow-1">
@@ -14,6 +15,18 @@
               </select>
             </div>
           </div>
+
+          <!-- フォームタイプ -->
+          <div class="form-group d-flex">
+            <label class="fw-300">フォームタイプ</label>
+            <div class="flex-grow-1">
+              <select v-model="surveyData.type" class="form-control fw-300">
+                <option key="1" value="normal">回答フォーム</option>
+                <option key="2" value="precheckin">事前チェックイン用</option>
+              </select>
+            </div>
+          </div>
+
           <div class="form-group d-flex">
             <label class="fw-300 mb-auto">フォーム名(管理用)<required-mark /></label>
             <div class="flex-grow-1">
@@ -177,6 +190,7 @@ export default {
       surveyData: {
         id: null,
         folder_id: Util.getParamFromUrl('folder_id'),
+        type: 'normal', // or: precheckin
         name: null,
         title: null,
         description: null,
@@ -217,7 +231,6 @@ export default {
     },
 
     parseSurvey(survey) {
-      console.log('parsing survey.....', survey);
       this.surveyData = _.cloneDeep(survey);
     },
 
@@ -248,6 +261,7 @@ export default {
       const payload = _.pick(this.surveyData, [
         'id',
         'folder_id',
+        'type',
         'name',
         'banner_url',
         'title',

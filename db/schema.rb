@@ -12,7 +12,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_03_09_090236) do
+ActiveRecord::Schema.define(version: 2023_03_27_113220) do
   create_table 'active_storage_attachments', options: 'ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci', force: :cascade do |t|
     t.string 'name', null: false
     t.string 'record_type', null: false
@@ -718,6 +718,7 @@ ActiveRecord::Schema.define(version: 2023_03_09_090236) do
   create_table 'surveys', options: 'ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci', force: :cascade do |t|
     t.bigint 'line_account_id'
     t.bigint 'folder_id'
+    t.string 'type', default: 'normal'
     t.string 'code'
     t.string 'name'
     t.string 'banner_url'
