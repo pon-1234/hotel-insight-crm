@@ -20,7 +20,7 @@
           <div class="form-group d-flex">
             <label class="fw-300">フォームタイプ</label>
             <div class="flex-grow-1">
-              <select v-model="surveyData.type" class="form-control fw-300">
+              <select v-model="surveyData.type" class="form-control fw-300" @change="onSurveyTypeChanged()">
                 <option key="1" value="normal">回答フォーム</option>
                 <option key="2" value="precheckin">事前チェックイン用</option>
               </select>
@@ -295,22 +295,18 @@ export default {
 
     onQuestionsChanged(questions) {
       this.surveyData.questions = questions;
+    },
+
+    onSurveyTypeChanged() {
+      console.log('On survey changed: ', this.surveyData.type);
+      this.surveyData.questions = this.PrecheckinQuestions;
+      this.forceRerender();
     }
   }
 };
 </script>
 <style lang="scss" scoped>
   ::v-deep {
-    .liff_box {
-      margin-top: 200px;
-      text-align: center;
-      font-size: 16pt;
-    }
-    .liff_box p {
-      font-weight: bold;
-      margin: 20px;
-    }
-
     .btn-link {
       text-transform: uppercase;
       background: #00b900;

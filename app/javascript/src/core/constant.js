@@ -446,3 +446,115 @@ export const ActionObjectsCollect = [
     }
   }
 ];
+
+export const PrecheckinQuestions =
+[
+  {
+    type: 'text',
+    order: 0,
+    required: true,
+    content: {
+      name: 'survey-question-editor-text-0',
+      text: 'お名前',
+      input_name: 'name'
+    }
+  },
+  {
+    type: 'text',
+    order: 1,
+    required: true,
+    content: {
+      name: 'survey-question-editor-text-1',
+      text: '電話番号',
+      input_name: 'phone_number'
+    }
+  },
+  {
+    type: 'date',
+    required: false,
+    order: 2,
+    content: {
+      name: 'survey-question-editor-text-2',
+      text: 'チェックイン日',
+      input_name: 'check_in_date'
+    }
+  },
+  {
+    type: 'text',
+    required: true,
+    order: 3,
+    content: {
+      name: 'survey-question-editor-text-3',
+      text: '住所',
+      input_name: 'address'
+    }
+  },
+  {
+    type: 'date',
+    required: true,
+    order: 4,
+    content: {
+      name: 'survey-question-editor-text-4',
+      text: '誕生日',
+      input_name: 'birthday'
+    }
+  },
+  {
+    type: 'pulldown',
+    required: true,
+    order: 5,
+    content: {
+      text: 'ご利用シーン',
+      name: 'survey-question-editor-radio-5',
+      options: [
+        {
+          key: 'single',
+          value: '一人'
+        },
+        {
+          key: 'couple',
+          value: '恋人'
+        },
+        {
+          key: 'friends',
+          value: '友達'
+        },
+        {
+          key: 'family',
+          value: '家族'
+        },
+        {
+          key: 'business',
+          value: 'ビジネス'
+        },
+        {
+          key: 'other',
+          value: 'その他'
+        }
+      ]
+    }
+  },
+  {
+    type: 'radio',
+    required: true,
+    order: 6,
+    content: {
+      text: '個別',
+      name: 'survey-question-editor-radio-6',
+      options: [
+        {
+          value: '男性'
+        },
+        {
+          value: '女性'
+        },
+        {
+          value: 'その他'
+        },
+        {
+          value: '回答しない'
+        }
+      ]
+    }
+  }
+];
