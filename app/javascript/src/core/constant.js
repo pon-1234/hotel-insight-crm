@@ -453,6 +453,7 @@ export const PrecheckinQuestions =
     type: 'text',
     order: 0,
     required: true,
+    immutable: true,
     content: {
       name: 'survey-question-editor-text-0',
       text: 'お名前',
@@ -463,6 +464,7 @@ export const PrecheckinQuestions =
     type: 'text',
     order: 1,
     required: true,
+    immutable: true,
     content: {
       name: 'survey-question-editor-text-1',
       text: '電話番号',
@@ -471,8 +473,9 @@ export const PrecheckinQuestions =
   },
   {
     type: 'date',
-    required: false,
     order: 2,
+    required: false,
+    immutable: true,
     content: {
       name: 'survey-question-editor-text-2',
       text: 'チェックイン日',
@@ -482,6 +485,7 @@ export const PrecheckinQuestions =
   {
     type: 'text',
     required: true,
+    immutable: true,
     order: 3,
     content: {
       name: 'survey-question-editor-text-3',
@@ -491,8 +495,9 @@ export const PrecheckinQuestions =
   },
   {
     type: 'date',
-    required: true,
     order: 4,
+    required: false,
+    immutable: true,
     content: {
       name: 'survey-question-editor-text-4',
       text: '誕生日',
@@ -501,8 +506,9 @@ export const PrecheckinQuestions =
   },
   {
     type: 'pulldown',
-    required: true,
     order: 5,
+    required: true,
+    immutable: true,
     content: {
       text: 'ご利用シーン',
       name: 'survey-question-editor-radio-5',
@@ -536,8 +542,9 @@ export const PrecheckinQuestions =
   },
   {
     type: 'radio',
-    required: true,
     order: 6,
+    required: false,
+    immutable: true,
     content: {
       text: '個別',
       name: 'survey-question-editor-radio-6',
