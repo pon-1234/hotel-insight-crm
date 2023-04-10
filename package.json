@@ -8,6 +8,7 @@
     "doc": "apidoc -i doc/api -o doc/public"
   },
   "dependencies": {
+    "@babel/plugin-proposal-private-methods": "^7.18.6",
     "@ckeditor/ckeditor5-alignment": "^26.0.0",
     "@ckeditor/ckeditor5-autoformat": "^26.0.0",
     "@ckeditor/ckeditor5-basic-styles": "^26.0.0",

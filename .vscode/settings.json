@@ -10,5 +10,8 @@
       "tabWidth": 2, // works
       "printWidth": 120 // does not work
     }
-  }
+  },
+  "cSpell.words": [
+    "precheckin"
+  ]
 }

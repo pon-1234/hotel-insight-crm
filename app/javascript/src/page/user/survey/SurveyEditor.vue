@@ -21,8 +21,8 @@
             <label class="fw-300">フォームタイプ</label>
             <div class="flex-grow-1">
               <select v-model="surveyData.type" class="form-control fw-300" @change="onSurveyTypeChanged()">
-                <option key="1" value="normal">回答フォーム</option>
-                <option key="2" value="precheckin">事前チェックイン用</option>
+                <option key="1" value="normal">空白フォーム</option>
+                <option key="2" value="precheckin">事前チェックイン</option>
               </select>
             </div>
           </div>
