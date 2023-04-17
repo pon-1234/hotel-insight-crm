@@ -54,7 +54,7 @@ class ReservationsController < ApplicationController
     friend = LineFriend.find_by_line_user_id params[:friend_line_id]
     pms_api_key = friend.line_account.pms_api_key
     reservations = get_reservations(pms_api_key, precheckin_params)
-    first_reservation = reservations.find { |h| h['rsvStatus'] != 'Canceled' }
+    first_reservation = reservations&.find { |h| h['rsvStatus'] != 'Canceled' }
     if first_reservation.present?
       reservation_ids = reservations.select { |h| h['rsvStatus'] != 'Canceled' }.map { |h| h['id'] }
       Pms::Guest::UpdateGuest.new(pms_api_key).perform(first_reservation['guestId'], precheckin_params.slice(:birthdate, :gender, :address))
