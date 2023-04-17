@@ -10,8 +10,9 @@
 #  name            :string(255)
 #  phone_number    :string(255)
 #  check_in_date   :date
+#  check_out_date  :date
 #  address         :string(255)
-#  birthday        :string(255)
+#  birthdate       :string(255)
 #  companion       :string(255)
 #  gender          :integer
 #  created_at      :datetime         not null

@@ -13,13 +13,17 @@
         <div class="card-header border-bottom border-success"><h4>事前チェックインフォーム</h4></div>
         <div class="card-body">
           <!-- 電話番号 -->
-          <div class="form-group row">
-            <label class="col-lg-4">電話番号<required-mark></required-mark></label>
+          <div>
+            <p class="w-100 mb-1">
+              <span class="border-success question-title mr-2 font-weight-bold">Q1</span
+              >電話番号 <required-mark></required-mark>
+            </p>
+            <div class="w-100 text-muted text-sm my-1">ご予約に使った電話番号をご入力してください</div>
             <div class="col-lg-8">
               <ValidationProvider name="電話番号" rules="required|numeric|min:10|max:11" v-slot="{ errors }">
                 <input
                   type="number"
-                  class="form-control"
+                  class="form-control mt-2"
                   name="precheckin[phone_number]"
                   placeholder="電話番号を入力してください"
                   v-model.trim="precheckinFormData.phone_number"
@@ -30,8 +34,12 @@
           </div>
 
           <!-- チェックイン日 -->
-          <div class="form-group row">
-            <label class="col-lg-4">チェックイン日<required-mark /></label>
+          <div>
+            <p class="w-100 mb-1">
+              <span class="border-success question-title mr-2 font-weight-bold">Q2</span
+              >チェックイン日 <required-mark></required-mark>
+            </p>
+            <div class="w-100 text-muted text-sm my-1">ご予約のチェックイン日をご入力してください</div>
             <div class="col-lg-8">
               <ValidationProvider name="チェックイン日" rules="required" v-slot="{ errors }">
                 <datetime
@@ -50,8 +58,8 @@
             </div>
           </div>
         </div>
-        <div class="card-footer border-top border-success text-center py-3">
-          <button type="submit" class="btn btn-success fw-120">送信</button>
+        <div class="card-footer border-top pb-3 border-top-0">
+          <button type="submit" class="btn btn-precheckin fw-120">予約照合</button>
         </div>
         <loading-indicator :loading="loading"></loading-indicator>
       </div>
@@ -115,3 +123,12 @@ export default {
   }
 };
 </script>
+<style lang="scss" scoped>
+  .question-title {
+    border-bottom: 3px solid #0acf97;
+  }
+
+  .text-sm {
+    font-size: 0.7rem;
+  }
+</style>

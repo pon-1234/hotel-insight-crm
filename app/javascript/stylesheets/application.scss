@@ -338,6 +338,18 @@
   word-break: break-all;
 }
 
+.btn-precheckin {
+  background: #18A0FB;
+  border-radius: 6px;
+  color: #FFFFFF;
+  font-size: 12px;
+}
+
+.btn-precheckin:hover {
+  background: #286090;
+  color: #FFFFFF;
+}
+
 @media screen and (max-width: 1350px) {
   .folder-right {
     width: 35vw;

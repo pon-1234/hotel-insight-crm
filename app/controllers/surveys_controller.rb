@@ -23,6 +23,37 @@ class SurveysController < ApplicationController
     end
 
     redirect_if_already_answered
+
+    if @survey.type == 'precheckin'
+      render :precheckin_form
+    end
+  end
+
+  # GET /surveys/precheckin/:code/:friend_id
+  def precheckin
+    @code = params[:code]
+    @friend_id = params[:friend_id]
+    @answers = {}
+    params[:answers].to_unsafe_h.each do |k, v|
+      if v['answer'].match?(/\d{4}年\d{1,2}月\d{1,2}日/)
+        @answers[k.to_i+1] = {answer: Date.strptime(v['answer'], '%Y年%m月%d日').strftime('%Y-%m-%d')}
+      else
+        @answers[k.to_i+1] = {answer: v['answer']}
+      end
+    end
+    friend = LineFriend.find_by_line_user_id @friend_id
+    pms_api_key = friend.line_account.pms_api_key
+    reservations = get_reservations(pms_api_key, @answers)
+    first_reservation = reservations.find { |h| h['rsvStatus'] != 'Canceled' }
+    @answers[4] = { answer: first_reservation&.[]('checkOutDate') }
+    @answers[8] = { answer: first_reservation&.[]('companion') }
+    guest = Pms::Guest::GetGuests.new(pms_api_key).perform(first_reservation&.[]('guestId'))
+    @answers[1] = { answer: guest&.[]('name') }
+    @answers[5] = { answer: guest&.[]('address') }
+    @answers[6] = { answer: guest&.[]('gender') }
+    @answers[7] = { answer: guest&.[]('birthdate') }
+
+    render :precheckin_detail_form
   end
 
   # POST /surveys/:code/:friend_id
@@ -71,5 +102,14 @@ class SurveysController < ApplicationController
       if !@survey.re_answer? && response.present?
         redirect_to survey_already_answer_path(code: params[:code], friend_id: params[:friend_id])
       end
+    end
+
+    def get_reservations(pms_api_key, answers)
+      reservation_info = {
+        checkInFrom: answers[3][:answer],
+        checkInTo: answers[3][:answer],
+        guestPhoneNumber: answers[2][:answer]
+      }
+      Pms::Reservation::SearchReservations.new(pms_api_key).perform(reservation_info)
     end
 end

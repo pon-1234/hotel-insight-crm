@@ -456,7 +456,7 @@ export const PrecheckinQuestions =
     immutable: true,
     content: {
       name: 'survey-question-editor-text-0',
-      text: 'お名前',
+      text: 'お名前 / Name',
       input_name: 'name'
     }
   },
@@ -467,41 +467,44 @@ export const PrecheckinQuestions =
     immutable: true,
     content: {
       name: 'survey-question-editor-text-1',
-      text: '電話番号',
+      text: '電話番号 / Phone Number',
+      sub_text: 'ご予約に使った電話番号をご入力してください',
       input_name: 'phone_number'
     }
   },
   {
     type: 'date',
     order: 2,
-    required: false,
+    required: true,
     immutable: true,
     content: {
       name: 'survey-question-editor-text-2',
-      text: 'チェックイン日',
+      text: 'チェックイン日 / Check-In Date',
+      sub_text: 'ご予約のチェックイン日をご入力してください',
       input_name: 'check_in_date'
+    }
+  },
+  {
+    type: 'date',
+    order: 3,
+    required: true,
+    immutable: true,
+    content: {
+      name: 'survey-question-editor-text-3',
+      text: 'チェックアウト日 / Check-Out Date',
+      sub_text: 'ご予約のチェックアウト日をご入力してください',
+      input_name: 'check_out_date'
     }
   },
   {
     type: 'text',
     required: true,
     immutable: true,
-    order: 3,
-    content: {
-      name: 'survey-question-editor-text-3',
-      text: '住所',
-      input_name: 'address'
-    }
-  },
-  {
-    type: 'date',
     order: 4,
-    required: false,
-    immutable: true,
     content: {
       name: 'survey-question-editor-text-4',
-      text: '誕生日',
-      input_name: 'birthday'
+      text: '住所 / Address',
+      input_name: 'address'
     }
   },
   {
@@ -510,8 +513,43 @@ export const PrecheckinQuestions =
     required: true,
     immutable: true,
     content: {
-      text: 'ご利用シーン',
-      name: 'survey-question-editor-radio-5',
+      text: '性別 / Gender',
+      name: 'survey-question-editor-pulldown-5',
+      options: [
+        {
+          value: '男性'
+        },
+        {
+          value: '女性'
+        },
+        {
+          value: 'その他'
+        },
+        {
+          value: '回答しない'
+        }
+      ]
+    }
+  },
+  {
+    type: 'date',
+    order: 6,
+    required: true,
+    immutable: true,
+    content: {
+      name: 'survey-question-editor-text-6',
+      text: '生年月日 / Birthdate',
+      input_name: 'birthday'
+    }
+  },
+  {
+    type: 'pulldown',
+    order: 7,
+    required: true,
+    immutable: true,
+    content: {
+      text: 'ご利用シーン / Use Scene',
+      name: 'survey-question-editor-pulldown-7',
       options: [
         {
           key: 'single',
@@ -539,29 +577,15 @@ export const PrecheckinQuestions =
         }
       ]
     }
-  },
+  }
+];
+
+export const NormalQuestion =
+[
   {
-    type: 'radio',
-    order: 6,
+    editing: true,
     required: false,
-    immutable: true,
-    content: {
-      text: '個別',
-      name: 'survey-question-editor-radio-6',
-      options: [
-        {
-          value: '男性'
-        },
-        {
-          value: '女性'
-        },
-        {
-          value: 'その他'
-        },
-        {
-          value: '回答しない'
-        }
-      ]
-    }
+    type: 'text',
+    content: null
   }
 ];

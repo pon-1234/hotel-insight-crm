@@ -22,13 +22,17 @@ class ReservationsController < ApplicationController
       @precheckin_data = precheckin_params.slice(:phone_number, :check_in_date)
       friend = LineFriend.find_by_line_user_id params[:friend_line_id]
       pms_api_key = friend.line_account.pms_api_key
-      if reservation = get_reservation(pms_api_key, precheckin_params)
-        @precheckin_data[:companion] = reservation['companion']
-        guest = Pms::Guest::GetGuests.new(pms_api_key).perform(reservation['guestId'])
+      reservations = get_reservations(pms_api_key, precheckin_params)
+      first_reservation = reservations.find { |h| h['rsvStatus'] != 'Canceled' }
+
+      if first_reservation.present?
+        @precheckin_data[:check_out_date] = first_reservation['checkOutDate']
+        @precheckin_data[:companion] = first_reservation['companion']
+        guest = Pms::Guest::GetGuests.new(pms_api_key).perform(first_reservation['guestId'])
         if guest.present?
           @precheckin_data[:name] = guest['name']
           @precheckin_data[:address] = guest['address']
-          @precheckin_data[:birthday] = guest['birthday']
+          @precheckin_data[:birthdate] = guest['birthdate']
           @precheckin_data[:gender] = guest['gender']
         end
       end
@@ -44,11 +48,20 @@ class ReservationsController < ApplicationController
 
   # POST /reservations/precheckin_detail
   def precheckin_detail
+    # binding.pry
     friend = LineFriend.find_by_line_user_id params[:friend_line_id]
     pms_api_key = friend.line_account.pms_api_key
-    if reservation = get_reservation(pms_api_key, precheckin_params)
-      Pms::Guest::UpdateGuest.new(pms_api_key).perform(reservation['guestId'], precheckin_params.slice(:birthday, :gender))
-      Pms::Reservation::UpdateReservations.new(pms_api_key).perform(reservation['id'], { companion: precheckin_params[:companion] })
+    reservations = get_reservations(pms_api_key, precheckin_params)
+    first_reservation = reservations.find { |h| h['rsvStatus'] != 'Canceled' }
+    if first_reservation.present?
+      # binding.pry
+      reservation_ids = reservations.select { |h| h['rsvStatus'] != 'Canceled' }.map { |h| h['id'] }
+      Pms::Guest::UpdateGuest.new(pms_api_key).perform(first_reservation['guestId'], precheckin_params.slice(:birthdate, :gender, :address))
+      reservation_ids&.each {
+        |reservation_id|
+        # binding.pry
+        Pms::Reservation::UpdateReservations.new(pms_api_key).perform(reservation_id, { companion: precheckin_params[:companion] })
+      }
     end
     if precheckin = ReservationPrecheckin.find_by(precheckin_params.slice(:phone_number, :check_in_date))
       precheckin.update(precheckin_params)
@@ -61,7 +74,7 @@ class ReservationsController < ApplicationController
       channel_id: friend.channel.id,
       messages: messages
     }
-    PushMessageToLineJob.perform_now(payload)
+    # PushMessageToLineJob.perform_now(payload)
     redirect_to reservation_precheckin_success_path
   rescue => exception
     puts exception.message
@@ -118,13 +131,12 @@ class ReservationsController < ApplicationController
       @available_room_params.to_h.deep_transform_keys! { |key| key.to_s.camelize(:lower) }
     end
 
-    def get_reservation(pms_api_key, params)
+    def get_reservations(pms_api_key, params)
       reservation_info = {
         checkInFrom: params[:check_in_date],
         checkInTo: params[:check_in_date],
         guestPhoneNumber: params[:phone_number]
       }
-      response = Pms::Reservation::SearchReservations.new(pms_api_key).perform(reservation_info)
-      response.first if response.present?
+      Pms::Reservation::SearchReservations.new(pms_api_key).perform(reservation_info)
     end
 end

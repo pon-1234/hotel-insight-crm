@@ -15,8 +15,11 @@
           <div v-show="firstStep">
             <ValidationObserver ref="innerObs">
               <!-- お名前 -->
-              <div class="form-group row">
-                <label class="col-lg-4">お名前<required-mark></required-mark></label>
+              <div>
+                <p class="w-100 mb-1">
+                  <span class="border-success question-title mr-2 font-weight-bold">Q1</span
+                  >お名前 <required-mark></required-mark>
+                </p>
                 <div class="col-lg-8">
                   <ValidationProvider name="お名前" rules="required|max:255" v-slot="{ errors }">
                     <input
@@ -32,8 +35,12 @@
               </div>
 
               <!-- 電話番号 -->
-              <div class="form-group row">
-                <label class="col-lg-4">電話番号<required-mark></required-mark></label>
+              <div>
+                <p class="w-100 mb-1">
+                  <span class="border-success question-title mr-2 font-weight-bold">Q2</span
+                  >電話番号 / Phone Number <required-mark></required-mark>
+                </p>
+                <div class="w-100 text-muted text-sm my-1">ご予約に使った電話番号をご入力してください</div>
                 <div class="col-lg-8">
                   <ValidationProvider name="電話番号" rules="required|numeric|min:10|max:11" v-slot="{ errors }">
                     <input
@@ -49,8 +56,12 @@
               </div>
 
               <!-- チェックイン日 -->
-              <div class="form-group row">
-                <label class="col-lg-4">チェックイン日<required-mark /></label>
+              <div>
+                <p class="w-100 mb-1">
+                  <span class="border-success question-title mr-2 font-weight-bold">Q3</span
+                  >チェックイン日 / Check-In Date <required-mark></required-mark>
+                </p>
+                <div class="w-100 text-muted text-sm my-1">ご予約のチェックイン日をご入力してください</div>
                 <div class="col-lg-8">
                   <ValidationProvider name="チェックイン日" rules="required" v-slot="{ errors }">
                     <datetime
@@ -69,9 +80,37 @@
                 </div>
               </div>
 
+              <!-- チェックアウト日 -->
+              <div>
+                <p class="w-100 mb-1">
+                  <span class="border-success question-title mr-2 font-weight-bold">Q4</span
+                  >チェックアウト日 / Check-Out Date <required-mark></required-mark>
+                </p>
+                <div class="w-100 text-muted text-sm my-1">ご予約のチェックアウト日をご入力してください</div>
+                <div class="col-lg-8">
+                  <ValidationProvider name="チェックアウト日" rules="required" v-slot="{ errors }">
+                    <datetime
+                      input-class="form-control"
+                      type="date"
+                      :phrases="{ ok: '確定', cancel: '閉じる' }"
+                      placeholder="チェックアウト日を選択してください"
+                      name="precheckin[check_out_date]"
+                      value-zone="Asia/Tokyo"
+                      zone="Asia/Tokyo"
+                      v-model="precheckinFormData.check_out_date"
+                      format="yyyy-MM-dd"
+                    ></datetime>
+                    <error-message :message="errors[0]"></error-message>
+                  </ValidationProvider>
+                </div>
+              </div>
+
               <!-- 住所 -->
-              <div class="form-group row">
-                <label class="col-lg-4">住所<required-mark></required-mark></label>
+              <div>
+                <p class="w-100 mb-1">
+                  <span class="border-success question-title mr-2 font-weight-bold">Q5</span
+                  >住所 / Address <required-mark></required-mark>
+                </p>
                 <div class="col-lg-8">
                   <ValidationProvider name="住所" rules="required|max:255" v-slot="{ errors }">
                     <input
@@ -86,23 +125,44 @@
                   </ValidationProvider>
                 </div>
               </div>
+
+              <!-- 性別 -->
+              <div>
+                <p class="w-100 mb-1">
+                  <span class="border-success question-title mr-2 font-weight-bold">Q6</span
+                  >性別 / Gender <required-mark></required-mark>
+                </p>
+                <div class="col-lg-8">
+                  <ValidationProvider name="性別" rules="required" v-slot="{ errors }">
+                    <select v-model="precheckinFormData.gender" name="precheckin[gender]" class="form-control">
+                      <option v-for="(gender, index) in genders" :key="index" :value="index">
+                        {{ gender }}
+                      </option>
+                    </select>
+                    <span class="error-explanation">{{ errors[0] }}</span>
+                  </ValidationProvider>
+                </div>
+              </div>
             </ValidationObserver>
           </div>
           <div v-show="!firstStep">
-            <!-- 誕生日 -->
-            <div class="form-group row">
-              <label class="col-lg-4">誕生日<required-mark></required-mark></label>
+            <!-- 生年月日 -->
+            <div>
+              <p class="w-100 mb-1">
+                <span class="border-success question-title mr-2 font-weight-bold">Q7</span
+                >生年月日 / Birthdate <required-mark></required-mark>
+              </p>
               <div class="col-lg-8">
-                <ValidationProvider name="誕生日" rules="required" v-slot="{ errors }">
+                <ValidationProvider name="生年月日" rules="required" v-slot="{ errors }">
                   <datetime
                       input-class="form-control"
                       type="date"
                       :phrases="{ ok: '確定', cancel: '閉じる' }"
                       placeholder="チェックイン日を選択してください"
-                      name="precheckin[birthday]"
+                      name="precheckin[birthdate]"
                       value-zone="Asia/Tokyo"
                       zone="Asia/Tokyo"
-                      v-model="precheckinFormData.birthday"
+                      v-model="precheckinFormData.birthdate"
                       format="yyyy-MM-dd"
                   ></datetime>
                   <error-message :message="errors[0]"></error-message>
@@ -111,8 +171,11 @@
             </div>
 
             <!-- ご利用シーン -->
-            <div class="form-group row">
-              <label class="col-lg-4">ご利用シーン<required-mark></required-mark></label>
+            <div>
+              <p class="w-100 mb-1">
+                <span class="border-success question-title mr-2 font-weight-bold">Q7</span
+                >ご利用シーン / Use Scene <required-mark></required-mark>
+              </p>
               <div class="col-lg-8">
                 <ValidationProvider name="ご利用シーン" rules="required" v-slot="{ errors }">
                   <select v-model="precheckinFormData.companion" name="precheckin[companion]" class="form-control">
@@ -124,32 +187,16 @@
                 </ValidationProvider>
               </div>
             </div>
-
-            <!-- 性別 -->
-            <div class="form-group row">
-              <label class="col-lg-4">性別<required-mark></required-mark></label>
-              <div class="col-lg-8">
-                <ValidationProvider name="性別" rules="required" v-slot="{ errors }">
-                  <select v-model="precheckinFormData.gender" name="precheckin[gender]" class="form-control">
-                    <option v-for="(gender, index) in genders" :key="index" :value="index">
-                      {{ gender }}
-                    </option>
-                  </select>
-                  <span class="error-explanation">{{ errors[0] }}</span>
-                </ValidationProvider>
-              </div>
-            </div>
           </div>
         </div>
         <div v-show="firstStep">
-          <div class="card-footer border-top border-success text-center py-3">
-            <button type="button" class="btn btn-success fw-120" @click="nextStep()">次へ</button>
+          <div class="card-footer border-top pb-3 border-top-0">
+            <button type="button" class="btn btn-precheckin fw-120" @click="nextStep()">送信</button>
           </div>
         </div>
         <div v-show="!firstStep">
-          <div class="card-footer border-top border-success text-center py-3">
-            <button type="button" class="btn btn-success fw-120 back-button" @click="firstStep = !firstStep">戻る</button>
-            <button type="submit" class="btn btn-success fw-120">送信</button>
+          <div class="card-footer border-top pb-3 border-top-0">
+            <button type="submit" class="btn btn-precheckin fw-120">送信</button>
           </div>
         </div>
         <loading-indicator :loading="loading"></loading-indicator>
@@ -188,8 +235,9 @@ export default {
         name: null,
         phone_number: null,
         check_in_date: null,
+        check_out_date: null,
         address: null,
-        birthday: null,
+        birthdate: null,
         companion: null,
         gender: null
       }
@@ -208,7 +256,7 @@ export default {
   },
 
   mounted() {
-    this.precheckinFormData.birthday = this.defaultStartBirthday;
+    this.precheckinFormData.birthdate = this.defaultStartBirthdate;
   },
 
   computed: {
@@ -216,7 +264,7 @@ export default {
       return `${this.rootPath}/reservations/precheckin_detail/${this.friendLineId}`;
     },
 
-    defaultStartBirthday() {
+    defaultStartBirthdate() {
       return moment()
         .subtract(20, 'years')
         .tz('Asia/Tokyo')
@@ -241,5 +289,12 @@ export default {
 <style lang="scss" scoped>
   .back-button {
     margin-right: 100px;
+  }
+  .question-title {
+    border-bottom: 3px solid #0acf97;
+  }
+
+  .text-sm {
+    font-size: 0.7rem;
   }
 </style>

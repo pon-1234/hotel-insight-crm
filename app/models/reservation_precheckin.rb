@@ -10,8 +10,9 @@
 #  name            :string(255)
 #  phone_number    :string(255)
 #  check_in_date   :date
+#  check_out_date  :date
 #  address         :string(255)
-#  birthday        :string(255)
+#  birthdate       :string(255)
 #  companion       :string(255)
 #  gender          :integer
 #  created_at      :datetime         not null
@@ -31,6 +32,6 @@ class ReservationPrecheckin < ApplicationRecord
   belongs_to :line_account
   belongs_to :line_friend
 
-  ATTRIBUTES = %i[name phone_number check_in_date address birthday companion gender]
-  validates :name, :phone_number, :check_in_date, :address, :birthday, :companion, :gender, :line_friend_id, :line_account_id, presence: true
+  ATTRIBUTES = %i[name phone_number check_in_date check_out_date address birthdate companion gender]
+  validates :name, :phone_number, :check_in_date, :check_out_date, :address, :birthdate, :companion, :gender, :line_friend_id, :line_account_id, presence: true
 end

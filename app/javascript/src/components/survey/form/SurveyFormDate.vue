@@ -29,11 +29,11 @@ export default {
     Datetime
   },
 
-  props: ['question', 'qnum'],
+  props: ['question', 'qnum', 'answers'],
 
   data() {
     return {
-      answer: null
+      answer: this.answers[this.qnum].answer
     };
   },
 
@@ -62,6 +62,14 @@ export default {
   methods: {
     onOptionChanged() {
       return 0;
+    }
+  },
+
+  watch: {
+    answer(newAnswer) {
+      if (this.answers) {
+        this.answers[this.qnum].answer = newAnswer;
+      }
     }
   }
 };

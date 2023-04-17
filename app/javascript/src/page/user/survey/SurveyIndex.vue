@@ -23,6 +23,7 @@
                 <tr>
                   <th>状況</th>
                   <th>フォーム名</th>
+                  <th>フォームタイプ</th>
                   <th>回答状態</th>
                   <th></th>
                 </tr>
@@ -34,6 +35,9 @@
                   </td>
                   <td>
                     <div class="mxvw-15 max-2-lines">{{ survey.name }}</div>
+                  </td>
+                  <td class="mw-120">
+                    <survey-type :surveyType="survey.type"></survey-type>
                   </td>
                   <td class="mw-200">
                     <template v-if="survey.responses_count === 0"> 未回答 </template>
