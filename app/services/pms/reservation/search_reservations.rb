@@ -9,9 +9,11 @@ class Pms::Reservation::SearchReservations < Pms::BaseRequest
       body: reservation_info.to_json
     }
     response = self.class.post '/reservations/search', options
-    return if response.code != 200
-
-    JSON.parse response.body
+    if response.code != 200
+      raise Common::PmsApiError.new(response.body) if response.code == 403
+    else
+      JSON.parse response.body
+    end
   rescue => exception
     raise Common::PmsApiError.new(exception.message)
   end

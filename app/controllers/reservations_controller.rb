@@ -38,6 +38,9 @@ class ReservationsController < ApplicationController
       end
     end
     render :precheckin_detail_form
+  rescue => exception
+    Rails.logger.error exception.message
+    render :precheckin_detail_form
   end
 
   # POST /reservations/inquire/:friend_line_id
@@ -48,18 +51,15 @@ class ReservationsController < ApplicationController
 
   # POST /reservations/precheckin_detail
   def precheckin_detail
-    # binding.pry
     friend = LineFriend.find_by_line_user_id params[:friend_line_id]
     pms_api_key = friend.line_account.pms_api_key
     reservations = get_reservations(pms_api_key, precheckin_params)
     first_reservation = reservations.find { |h| h['rsvStatus'] != 'Canceled' }
     if first_reservation.present?
-      # binding.pry
       reservation_ids = reservations.select { |h| h['rsvStatus'] != 'Canceled' }.map { |h| h['id'] }
       Pms::Guest::UpdateGuest.new(pms_api_key).perform(first_reservation['guestId'], precheckin_params.slice(:birthdate, :gender, :address))
       reservation_ids&.each {
         |reservation_id|
-        # binding.pry
         Pms::Reservation::UpdateReservations.new(pms_api_key).perform(reservation_id, { companion: precheckin_params[:companion] })
       }
     end
@@ -77,7 +77,7 @@ class ReservationsController < ApplicationController
     # PushMessageToLineJob.perform_now(payload)
     redirect_to reservation_precheckin_success_path
   rescue => exception
-    puts exception.message
+    Rails.logger.error exception.message
   end
 
   # GET /reservations/inquiry_success

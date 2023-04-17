@@ -36,9 +36,9 @@ class SurveysController < ApplicationController
     @answers = {}
     params[:answers].to_unsafe_h.each do |k, v|
       if v['answer'].match?(/\d{4}年\d{1,2}月\d{1,2}日/)
-        @answers[k.to_i+1] = {answer: Date.strptime(v['answer'], '%Y年%m月%d日').strftime('%Y-%m-%d')}
+        @answers[k.to_i+1] = { answer: Date.strptime(v['answer'], '%Y年%m月%d日').strftime('%Y-%m-%d') }
       else
-        @answers[k.to_i+1] = {answer: v['answer']}
+        @answers[k.to_i+1] = { answer: v['answer'] }
       end
     end
     friend = LineFriend.find_by_line_user_id @friend_id
