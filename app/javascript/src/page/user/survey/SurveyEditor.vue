@@ -26,56 +26,57 @@
               </select>
             </div>
           </div>
-
-          <div class="form-group d-flex">
-            <label class="fw-300 mb-auto">フォーム名(管理用)<required-mark /></label>
-            <div class="flex-grow-1">
-              <ValidationProvider name="フォーム名(管理用)" rules="required|max:64" v-slot="{ errors }">
-                <input
-                  v-model.trim="surveyData.name"
-                  type="text"
-                  name="survey_name"
-                  class="form-control"
-                  placeholder="フォーム名(管理用)を入力してください"
-                  maxlength="65"
-                />
-                <error-message :message="errors[0]"></error-message>
+          <ValidationObserver ref="observer">
+            <div class="form-group d-flex">
+              <label class="fw-300 mb-auto">フォーム名(管理用)<required-mark /></label>
+              <div class="flex-grow-1">
+                <ValidationProvider name="フォーム名(管理用)" rules="required|max:64" v-slot="{ errors }">
+                  <input
+                    v-model.trim="surveyData.name"
+                    type="text"
+                    name="survey_name"
+                    class="form-control"
+                    placeholder="フォーム名(管理用)を入力してください"
+                    maxlength="65"
+                  />
+                  <error-message :message="errors[0]"></error-message>
+                </ValidationProvider>
+              </div>
+            </div>
+            <div class="form-group d-flex">
+              <label class="fw-300 mb-auto">タイトル<required-mark /></label>
+              <div class="flex-grow-1">
+                <ValidationProvider name="タイトル" rules="required|max:255" v-slot="{ errors }">
+                  <input
+                    v-model.trim="surveyData.title"
+                    type="text"
+                    name="survey_title"
+                    class="form-control"
+                    placeholder="タイトルを入力してください"
+                  />
+                  <error-message :message="errors[0]"></error-message>
+                </ValidationProvider>
+              </div>
+            </div>
+            <div class="form-group d-flex">
+              <label class="fw-300 mb-auto">説明<required-mark /></label>
+              <div class="flex-grow-1">
+                <ValidationProvider name="説明" rules="required|max:1000" v-slot="{ errors }">
+                  <textarea
+                    rows="3"
+                    v-model="surveyData.description"
+                    type="text"
+                    name="survey_description"
+                    class="form-control flex-grow-1"
+                    placeholder="説明を入力してください"
+                    maxlength="1001"
+                  >
+                  </textarea>
+                  <error-message :message="errors[0]"></error-message>
               </ValidationProvider>
+              </div>
             </div>
-          </div>
-          <div class="form-group d-flex">
-            <label class="fw-300 mb-auto">タイトル<required-mark /></label>
-            <div class="flex-grow-1">
-              <ValidationProvider name="タイトル" rules="required|max:255" v-slot="{ errors }">
-                <input
-                  v-model.trim="surveyData.title"
-                  type="text"
-                  name="survey_title"
-                  class="form-control"
-                  placeholder="タイトルを入力してください"
-                />
-                <error-message :message="errors[0]"></error-message>
-              </ValidationProvider>
-            </div>
-          </div>
-          <div class="form-group d-flex">
-            <label class="fw-300 mb-auto">説明<required-mark /></label>
-            <div class="flex-grow-1">
-              <ValidationProvider name="説明" rules="required|max:1000" v-slot="{ errors }">
-                <textarea
-                  rows="3"
-                  v-model="surveyData.description"
-                  type="text"
-                  name="survey_description"
-                  class="form-control flex-grow-1"
-                  placeholder="説明を入力してください"
-                  maxlength="1001"
-                >
-                </textarea>
-                <error-message :message="errors[0]"></error-message>
-            </ValidationProvider>
-            </div>
-          </div>
+          </ValidationObserver>
           <div class="form-group d-flex">
             <label class="fw-300 mb-auto">回答後の文章</label>
             <div class="flex-grow-1">
@@ -246,12 +247,11 @@ export default {
     async submit(published = true) {
       if (this.loading) return;
       this.loading = true;
-      if (published) {
-        const valid = await this.$validator.validateAll();
-        if (!valid) {
-          this.loading = false;
-          return ViewHelper.scrollToRequiredField(false);
-        }
+      const [settingsValid, questionsValid] = await Promise.all([this.$refs.observer.validate(), this.$validator.validateAll()]);
+
+      if (!settingsValid || !questionsValid) {
+        this.loading = false;
+        return ViewHelper.scrollToRequiredField(false);
       }
 
       // Authorize with google api if needed
@@ -278,19 +278,22 @@ export default {
         question.order = index;
         return question;
       });
-      let response = null;
-      if (this.survey_id) {
-        response = await this.updateSurvey(payload);
-      } else {
-        response = await this.createSurvey(payload);
-      }
-      if (response) {
-        Util.showSuccessThenRedirect(
-          '回答フォームの保存は完了しました。',
-          `${this.rootPath}/user/surveys?folder_id=${this.surveyData.folder_id}`
-        );
-      } else {
-        window.toastr.error('回答フォームの保存は失敗しました。');
+
+      if (settingsValid && questionsValid) {
+        let response = null;
+        if (this.survey_id) {
+          response = await this.updateSurvey(payload);
+        } else {
+          response = await this.createSurvey(payload);
+        }
+        if (response) {
+          Util.showSuccessThenRedirect(
+            '回答フォームの保存は完了しました。',
+            `${this.rootPath}/user/surveys?folder_id=${this.surveyData.folder_id}`
+          );
+        } else {
+          window.toastr.error('回答フォームの保存は失敗しました。');
+        }
       }
     },
 
