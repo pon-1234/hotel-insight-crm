@@ -23,6 +23,7 @@
 
 <script>
 import { Datetime } from 'vue-datetime';
+import { mapGetters, mapMutations, mapState } from 'vuex';
 
 export default {
   components: {
@@ -37,13 +38,23 @@ export default {
     };
   },
 
+  created() {
+    this.setDatetimeQuestion({ ques_num: this.qnum, ques: this.question });
+  },
+
   computed: {
+    ...mapGetters('survey', ['getDatetimeRequired']),
+    ...mapState('survey', {
+      datetimeRequired: state => state.datetimeRequired,
+      datetimeQuestion: state => state.datetimeQuestion
+    }),
+
     prefix() {
       return `surveyQuestion${this.qnum}`;
     },
 
     isRequired() {
-      return this.question ? this.question.required : false;
+      return this.getDatetimeRequired(this.qnum);
     },
 
     content() {
@@ -60,8 +71,18 @@ export default {
   },
 
   methods: {
+    ...mapMutations('survey', ['setDatetimeQuestion', 'setDatetimeRequired']),
+
     onOptionChanged() {
       return 0;
+    }
+  },
+
+  watch: {
+    answer(newAnswer) {
+      if (newAnswer && this.datetimeQuestion[this.qnum].required) {
+        this.setDatetimeRequired({ ques_num: this.qnum, status: true });
+      }
     }
   }
 };
