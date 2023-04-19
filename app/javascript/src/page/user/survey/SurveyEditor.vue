@@ -234,6 +234,11 @@ export default {
 
     parseSurvey(survey) {
       this.surveyData = _.cloneDeep(survey);
+      if (this.surveyData.type === 'precheckin') {
+        for (let i = 0; i < 8; i++) {
+          this.surveyData.questions[i].immutable = true;
+        }
+      }
     },
 
     async validateForm() {
