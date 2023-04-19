@@ -108,7 +108,7 @@ export default {
     ...mapActions('survey', ['getSurveyByCode', 'postAnswer']),
 
     async onSubmit() {
-      Object.entries(this.datetimeQuestion).forEach(([qnum, ques]) => {
+      await Object.entries(this.datetimeQuestion).forEach(([qnum, ques]) => {
         if (ques.required) {
           this.setDatetimeRequired({ ques_num: qnum, status: true });
         }
