@@ -9,7 +9,7 @@
     <div class="mt-2">
       <div>
         <survey-question-header :question="survey.questions[0]" :qnum="1"></survey-question-header>
-        <ValidationProvider name="答え" :rules="{ required: isRequired, max: 255 }" v-slot="{ errors }">
+        <ValidationProvider name="答え" :rules="{ required: true, max: 255 }" v-slot="{ errors }">
           <input
             type="text"
             :name="`answers[${1}][answer]`"
@@ -59,7 +59,7 @@
       </div>
       <div>
         <survey-question-header :question="survey.questions[3]" :qnum="4"></survey-question-header>
-        <ValidationProvider name="チェックアウト日" rules="required" v-slot="{ errors }">
+        <ValidationProvider name="チェックアウト日" :rules="{ required: dateRequired }" v-slot="{ errors }">
           <div class="form-group mt-2 position-relative">
             <datetime
               input-class="form-control btn border border-light text-left"
@@ -69,7 +69,7 @@
               value-zone="Asia/Tokyo"
               zone="Asia/Tokyo"
               :name="`answers[${4}][answer]`"
-              v-model="answers[4].answer"
+              v-model="dateAnswer"
               :readonly="verifyReservation"
               @click.native="hidePopup"
             ></datetime>
@@ -80,7 +80,7 @@
       </div>
       <div>
         <survey-question-header :question="survey.questions[4]" :qnum="5"></survey-question-header>
-        <ValidationProvider name="答え" :rules="{ required: isRequired, max: 255 }" v-slot="{ errors }">
+        <ValidationProvider name="答え" :rules="{ required: true, max: 255 }" v-slot="{ errors }">
           <input
             type="text"
             :name="`answers[${5}][answer]`"
@@ -93,7 +93,7 @@
       </div>
       <div>
         <survey-question-header :question="survey.questions[5]" :qnum="6"></survey-question-header>
-        <ValidationProvider name="答え" :rules="{ required: isRequired }" v-slot="{ errors }">
+        <ValidationProvider name="答え" rules="required" v-slot="{ errors }">
           <select class="form-control w-100" :name="`answers[${6}][answer]`" v-model="answers[6].answer">
             <option v-for="(option, index) in survey.questions[5].content.options" :key="index" :value="index">
               {{ option.value }}
@@ -119,6 +119,9 @@ export default {
     },
     haveApiKey: {
       type: Boolean
+    },
+    dateRequired: {
+      type: Boolean
     }
   },
 
@@ -128,18 +131,20 @@ export default {
 
   data() {
     return {
-
+      dateAnswer: null
     };
+  },
+
+  created() {
+    if (this.answers && this.answers[4].answer) {
+      this.dateAnswer = this.answers[4].answer;
+    }
   },
 
   computed: {
     verifyReservation() {
       return !!this.answers[1].answer;
     }
-  },
-
-  created() {
-    // debugger;
   },
 
   methods: {
@@ -151,6 +156,14 @@ export default {
         document.querySelectorAll('.vdatetime-popup').forEach(overlay => {
           overlay.style.display = 'none';
         });
+      }
+    }
+  },
+  watch: {
+    dateAnswer(newVal, oldVal) {
+      if (newVal) {
+        this.answers[4].answer = this.dateAnswer;
+        this.$emit('update-required', true);
       }
     }
   }

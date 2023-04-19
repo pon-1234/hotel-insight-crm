@@ -94,7 +94,7 @@
                 </p>
                 <div class="w-100 text-muted text-sm my-1">ご予約のチェックアウト日をご入力してください</div>
                 <div class="col-lg-8">
-                  <ValidationProvider name="チェックアウト日" rules="required" v-slot="{ errors }">
+                  <ValidationProvider name="チェックアウト日" :rules="{ required: isRequired }" v-slot="{ errors }">
                     <datetime
                       input-class="form-control"
                       type="date"
@@ -247,7 +247,8 @@ export default {
         birthdate: null,
         companion: null,
         gender: null
-      }
+      },
+      isRequired: false
     };
   },
 
@@ -260,10 +261,9 @@ export default {
     if (!Object.keys(this.companionOptions).includes(this.precheckinFormData.companion)) {
       this.precheckinFormData.companion = null;
     }
-  },
-
-  mounted() {
-    this.precheckinFormData.birthdate = this.defaultStartBirthdate;
+    if (!this.precheckinFormData.birthdate) {
+      this.precheckinFormData.birthdate = this.defaultStartBirthdate;
+    }
   },
 
   computed: {
@@ -287,13 +287,17 @@ export default {
     async onSubmit(e) {
       this.$refs.form.submit();
     },
-    nextStep() {
+    async nextStep() {
+      await this.setIsRequired();
       this.$refs.innerObs.validate().then(success => {
         if (success) {
           this.step1 = false;
           this.step2 = true;
         }
       });
+    },
+    setIsRequired() {
+      this.isRequired = true;
     },
     hidePopup() {
       if (this.verifyReservation) {
@@ -303,6 +307,13 @@ export default {
         document.querySelectorAll('.vdatetime-popup').forEach(overlay => {
           overlay.style.display = 'none';
         });
+      }
+    }
+  },
+  watch: {
+    'precheckinFormData.check_out_date': function(newValue) {
+      if (newValue) {
+        this.isRequired = true;
       }
     }
   }

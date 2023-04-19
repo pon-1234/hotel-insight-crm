@@ -12,7 +12,7 @@
         <div v-show="step1">
           <div class="card-body">
             <ValidationObserver ref="innerObs">
-              <main-default-form :haveApiKey="haveApiKey" :answers="answers" :survey="surveyStep1"></main-default-form>
+              <main-default-form @update-required="updateRequired" :dateRequired="dateRequired" :haveApiKey="haveApiKey" :answers="answers" :survey="surveyStep1"></main-default-form>
             </ValidationObserver>
           </div>
           <div class="card-footer text-align-center border-top-0">
@@ -40,6 +40,7 @@
 <script>
 import { mapActions, mapMutations, mapState } from 'vuex';
 import Util from '@/core/util.js';
+import moment from 'moment-timezone';
 
 export default {
   props: {
@@ -65,7 +66,8 @@ export default {
       survey: null,
       STEP1_QUESTION_NUM: 6,
       step1: true,
-      step2: false
+      step2: false,
+      dateRequired: false
     };
   },
 
@@ -78,6 +80,12 @@ export default {
     this.loading = false;
   },
 
+  created() {
+    if (!this.answers[7].answer) {
+      this.answers[7].answer = this.defaultStartBirthdate;
+    }
+  },
+
   computed: {
     ...mapState('survey', {
       datetimeQuestion: state => state.datetimeQuestion
@@ -85,6 +93,13 @@ export default {
 
     formAction() {
       return `${this.userRootUrl}/surveys/precheckin_answer/${this.code}/${this.friend_id}`;
+    },
+
+    defaultStartBirthdate() {
+      return moment()
+        .subtract(20, 'years')
+        .tz('Asia/Tokyo')
+        .format();
     }
   },
 
@@ -104,13 +119,17 @@ export default {
       }
     },
 
-    nextStep() {
+    async nextStep() {
+      await this.updateRequired(true);
       this.$refs.innerObs.validate().then(success => {
         if (success) {
           this.step1 = false;
           this.step2 = true;
         }
       });
+    },
+    updateRequired(val) {
+      this.dateRequired = val;
     }
   }
 };
