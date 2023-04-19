@@ -44,11 +44,12 @@ module SurveysHelper
     survey_answers.each_with_index do |survey_answer, index|
       question = SurveyQuestion.find(survey_answer.survey_question_id)
 
-      if question.file?
+      ans = answer_params[(index+1).to_s][:answer]
+      if question.file? && ans.present?
         survey_answer.file.purge
-        survey_answer.file = answer_params[(index+1).to_s][:answer]
+        survey_answer.file = ans
       else
-        survey_answer.answer = answer_params[(index+1).to_s][:answer]
+        survey_answer.answer = ans
       end
       survey_answer.save!
 

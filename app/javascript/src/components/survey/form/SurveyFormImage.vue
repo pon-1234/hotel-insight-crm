@@ -25,12 +25,18 @@
 
 <script>
 export default {
-  props: ['question', 'qnum'],
+  props: ['question', 'qnum', 'answers'],
 
   data() {
     return {
       fileName: null
     };
+  },
+
+  created() {
+    if (this.answers && this.answers[this.qnum]) {
+      this.fileName = this.answers[this.qnum].answer;
+    }
   },
 
   computed: {

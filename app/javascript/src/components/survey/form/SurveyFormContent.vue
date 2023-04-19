@@ -10,10 +10,11 @@
 
     <div class="mt-2" v-for="(question, index) in questions" :key="index">
       <!-- Input text question -->
-      <survey-form-text :question="question" :qnum="startIndex ? index + 3 + startIndex : index + 1" v-if="question.type === 'text'"></survey-form-text>
+      <survey-form-text :answers="answers" :question="question" :qnum="startIndex ? index + 3 + startIndex : index + 1" v-if="question.type === 'text'"></survey-form-text>
 
       <!-- Input multi line text question -->
       <survey-form-textarea
+        :answers="answers"
         :question="question"
         :qnum="startIndex ? index + 3 + startIndex : index + 1"
         v-if="question.type === 'textarea'"
@@ -21,35 +22,38 @@
 
       <!-- Pulldown question -->
       <survey-form-pulldown
+        :answers="answers"
         :question="question"
         :qnum="startIndex ? index + 3 + startIndex : index + 1"
         v-if="question.type === 'pulldown'"
       ></survey-form-pulldown>
 
       <!-- Radio button -->
-      <survey-form-radio :question="question" :qnum="startIndex ? index + 3 + startIndex : index + 1" v-if="question.type === 'radio'"></survey-form-radio>
+      <survey-form-radio :answers="answers" :question="question" :qnum="startIndex ? index + 3 + startIndex : index + 1" v-if="question.type === 'radio'"></survey-form-radio>
 
       <!-- Checkbox -->
       <survey-form-checkbox
+        :answers="answers"
         :question="question"
         :qnum="startIndex ? index + 3 + startIndex : index + 1"
         v-if="question.type === 'checkbox'"
       ></survey-form-checkbox>
 
       <!-- Image picker -->
-      <survey-form-image :question="question" :qnum="startIndex ? index + 3 + startIndex : index + 1" v-if="question.type === 'image'"></survey-form-image>
+      <survey-form-image :answers="answers" :question="question" :qnum="startIndex ? index + 3 + startIndex : index + 1" v-if="question.type === 'image'"></survey-form-image>
 
       <!-- Image picker -->
-      <survey-form-pdf :question="question" :qnum="startIndex ? index + 3 + startIndex : index + 1" v-if="question.type === 'pdf'"></survey-form-pdf>
+      <survey-form-pdf :answers="answers" :question="question" :qnum="startIndex ? index + 3 + startIndex : index + 1" v-if="question.type === 'pdf'"></survey-form-pdf>
 
       <!-- Date picker -->
-      <survey-form-date :question="question" :qnum="startIndex ? index + 3 + startIndex : index + 1" v-if="question.type === 'date'"></survey-form-date>
+      <survey-form-date :answers="answers" :question="question" :qnum="startIndex ? index + 3 + startIndex : index + 1" v-if="question.type === 'date'"></survey-form-date>
 
       <!-- Time picker -->
-      <survey-form-time :question="question" :qnum="startIndex ? index + 3 + startIndex : index + 1" v-if="question.type === 'time'"></survey-form-time>
+      <survey-form-time :answers="answers" :question="question" :qnum="startIndex ? index + 3 + startIndex : index + 1" v-if="question.type === 'time'"></survey-form-time>
 
       <!-- Datetime picker -->
       <survey-form-datetime
+        :answers="answers"
         :question="question"
         :qnum="startIndex ? index + 3 + startIndex : index + 1"
         v-if="question.type === 'datetime'"

@@ -38,8 +38,13 @@ class SurveysController < ApplicationController
     p = format_answer_params
     precheckin = ReservationPrecheckin.find_by(phone_number: p[:answers]['1'][:answer], check_in_date: p[:answers]['2'][:answer])
     if precheckin.present?
-      precheckin.survey_response.survey_answers.pluck(:answer).each_with_index do |answer, index|
-      @answers[(index+1).to_s] = { answer: answer }
+      survey_answers = precheckin.survey_response.survey_answers.includes(:file_blob, file_attachment: [:blob])
+      survey_answers.each_with_index do |answer, index|
+        if answer.file_blob.present?
+          @answers[(index+1).to_s] = { answer: answer.file_blob.filename.to_s }
+        else
+          @answers[(index+1).to_s] = { answer: answer.answer }
+        end
       end
     else
       @answers['2'] = { answer: p[:answers]['1'][:answer] }
@@ -135,6 +140,8 @@ class SurveysController < ApplicationController
     def format_answer_params
       answer_params[:answers].to_h.each_with_object({answers: {}, code: answer_params[:code], friend_id: answer_params[:friend_id]}) do |(qnum, answer_data), data|
         data[:answers][qnum] = {id: answer_data[:id], answer: answer_data[:answer]}
+        next if answer_data[:answer].is_a?(ActionDispatch::Http::UploadedFile)
+
         if answer_data[:answer]&.match?(/\d{4}年\d{1,2}月\d{1,2}日/) && qnum.to_i <= 8
           data[:answers][qnum][:answer] = Date.parse(answer_data[:answer].gsub(/(\d{4})年(\d{1,2})月(\d{1,2})日/, '\1-\2-\3')).strftime("%Y-%m-%d")
         end
