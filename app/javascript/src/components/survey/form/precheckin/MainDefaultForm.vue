@@ -3,7 +3,7 @@
     <img :src="`${survey.banner_url}`" v-if="survey.banner_url" class="banner mb-1">
     <div class="font-weight-bold">{{ survey.title }}</div>
     <div class="font-12">{{ survey.description }}</div>
-    <div class="font-10 mt-2 precheckin-alert">
+    <div v-if="!verifyReservation && haveApiKey" class="font-10 mt-2 precheckin-alert">
       予約を照合できませんでした、予約データのご入力をお願いいたします。
     </div>
     <div class="mt-2">
@@ -16,7 +16,7 @@
             class="form-control mt-2"
             placeholder="入力してください"
             v-model.trim="answers[1].answer"
-            :readonly="false"
+            :readonly="verifyReservation"
           />
           <error-message :message="errors[0]"></error-message>
         </ValidationProvider>
@@ -31,7 +31,7 @@
           :name="`answers[${2}][answer]`"
           placeholder="電話番号を入力してください"
           v-model.trim="answers[2].answer"
-          :readonly="false"
+          :readonly="verifyReservation"
           />
           <error-message :message="errors[0]"></error-message>
         </ValidationProvider>
@@ -49,7 +49,8 @@
               zone="Asia/Tokyo"
               :name="`answers[${3}][answer]`"
               v-model="answers[3].answer"
-              :readonly="false"
+              :readonly="verifyReservation"
+              @click.native="hidePopup"
             ></datetime>
             <i class="dripicons-chevron-down dropdown-icon"></i>
           </div>
@@ -69,7 +70,8 @@
               zone="Asia/Tokyo"
               :name="`answers[${4}][answer]`"
               v-model="answers[4].answer"
-              :readonly="false"
+              :readonly="verifyReservation"
+              @click.native="hidePopup"
             ></datetime>
             <i class="dripicons-chevron-down dropdown-icon"></i>
           </div>
@@ -93,7 +95,7 @@
         <survey-question-header :question="survey.questions[5]" :qnum="6"></survey-question-header>
         <ValidationProvider name="答え" :rules="{ required: isRequired }" v-slot="{ errors }">
           <select class="form-control w-100" :name="`answers[${6}][answer]`" v-model="answers[6].answer">
-            <option v-for="(option, index) in survey.questions[5].content.options" :key="index" :value="option.value">
+            <option v-for="(option, index) in survey.questions[5].content.options" :key="index" :value="index">
               {{ option.value }}
             </option>
           </select>
@@ -108,13 +110,15 @@
 import { Datetime } from 'vue-datetime';
 
 export default {
-  // props: ['survey', 'preview', 'answers'],
   props: {
     survey: {
       type: Object
     },
     answers: {
       type: Object
+    },
+    haveApiKey: {
+      type: Boolean
     }
   },
 
@@ -129,11 +133,26 @@ export default {
   },
 
   computed: {
-
+    verifyReservation() {
+      return !!this.answers[1].answer;
+    }
   },
 
   created() {
     // debugger;
+  },
+
+  methods: {
+    hidePopup() {
+      if (this.verifyReservation) {
+        document.querySelectorAll('.vdatetime-overlay').forEach(overlay => {
+          overlay.style.display = 'none';
+        });
+        document.querySelectorAll('.vdatetime-popup').forEach(overlay => {
+          overlay.style.display = 'none';
+        });
+      }
+    }
   }
 };
 </script>

@@ -12,7 +12,7 @@
         <div v-show="step1">
           <div class="card-body">
             <ValidationObserver ref="innerObs">
-              <precheckin-default-form :answers="answers" :survey="surveyStep1"></precheckin-default-form>
+              <main-default-form :haveApiKey="haveApiKey" :answers="answers" :survey="surveyStep1"></main-default-form>
             </ValidationObserver>
           </div>
           <div class="card-footer text-align-center border-top-0">
@@ -51,6 +51,9 @@ export default {
     },
     answers: {
       type: Array
+    },
+    haveApiKey: {
+      type: Boolean
     }
   },
 
@@ -71,14 +74,13 @@ export default {
     const questionsStep1 = this.survey.questions.slice(0, this.STEP1_QUESTION_NUM);
     const questionsStep2 = this.survey.questions.slice(this.STEP1_QUESTION_NUM);
     this.surveyStep1 = Object.assign({}, this.survey, { questions: questionsStep1 });
-    console.log(this.surveyStep1);
     this.surveyStep2 = Object.assign({}, this.survey, { questions: questionsStep2 });
     this.loading = false;
   },
 
   computed: {
     formAction() {
-      return `${this.userRootUrl}/surveys/${this.code}/${this.friend_id}`;
+      return `${this.userRootUrl}/surveys/precheckin_answer/${this.code}/${this.friend_id}`;
     }
   },
 

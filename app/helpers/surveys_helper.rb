@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module SurveysHelper
-  def build_answer(survey, params)
+  def build_answer(survey, params, precheckin_id = nil)
     friend = LineFriend.find_by(line_user_id: params[:friend_id])
     old_response = SurveyResponse.find_by(survey: survey, line_friend: friend)
     if old_response.present? && !survey.re_answer?
@@ -10,6 +10,7 @@ module SurveysHelper
     # Create a new response
     response = SurveyResponse.new(survey: survey, line_friend: friend)
     response.answer_count = 1
+    response.reservation_precheckin_id = precheckin_id
     response.save!
 
     answer_params = params[:answers]
@@ -22,6 +23,32 @@ module SurveysHelper
         survey_answer.file = answer[:answer]
       else
         survey_answer.answer = answer[:answer]
+      end
+      survey_answer.save!
+
+      variable = question.content['variable']
+      assign_variable(friend, variable['id'], survey_answer) if variable.present? && variable['id'].present?
+    end
+    AfterAnsweredSurveyJob.perform_later(response.id)
+  end
+
+  def update_answer(survey, survey_answers, params)
+    friend = LineFriend.find_by(line_user_id: params[:friend_id])
+    old_response = SurveyResponse.find_by(survey: survey, line_friend: friend)
+    if old_response.present? && !survey.re_answer?
+      return raise 'You are already responsed!'
+    end
+    response = SurveyResponse.find_by(survey_id: survey.id, line_friend_id: friend.id)
+
+    answer_params = params[:answers]
+    survey_answers.each_with_index do |survey_answer, index|
+      question = SurveyQuestion.find(survey_answer.survey_question_id)
+
+      if question.file?
+        survey_answer.file.purge
+        survey_answer.file = answer_params[(index+1).to_s][:answer]
+      else
+        survey_answer.answer = answer_params[(index+1).to_s][:answer]
       end
       survey_answer.save!
 
