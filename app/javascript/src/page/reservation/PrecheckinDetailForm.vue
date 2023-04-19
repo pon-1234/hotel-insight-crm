@@ -11,8 +11,11 @@
       <input type="hidden" name="precheckin[friend_line_id]" :value="friendLineId" />
       <div class="card">
         <div class="card-header border-bottom border-success"><h4>事前チェックインフォーム</h4></div>
+        <div v-if="!verifyReservation && haveApiKey && step1" class="font-10 mt-2 precheckin-alert">
+          予約を照合できませんでした、予約データのご入力をお願いいたします。
+        </div>
         <div class="card-body">
-          <div v-show="firstStep">
+          <div v-show="step1">
             <ValidationObserver ref="innerObs">
               <!-- お名前 -->
               <div>
@@ -28,6 +31,7 @@
                       name="precheckin[name]"
                       placeholder="お名前を入力してください"
                       v-model.trim="precheckinFormData.name"
+                      :readonly="verifyReservation"
                     />
                     <span class="error-explanation">{{ errors[0] }}</span>
                   </ValidationProvider>
@@ -49,6 +53,7 @@
                       name="precheckin[phone_number]"
                       placeholder="電話番号を入力してください"
                       v-model.trim="precheckinFormData.phone_number"
+                      :readonly="verifyReservation"
                     />
                     <span class="error-explanation">{{ errors[0] }}</span>
                   </ValidationProvider>
@@ -73,7 +78,8 @@
                       value-zone="Asia/Tokyo"
                       zone="Asia/Tokyo"
                       v-model="precheckinFormData.check_in_date"
-                      format="yyyy-MM-dd"
+                      :readonly="verifyReservation"
+                      @click.native="hidePopup"
                     ></datetime>
                     <error-message :message="errors[0]"></error-message>
                   </ValidationProvider>
@@ -98,7 +104,8 @@
                       value-zone="Asia/Tokyo"
                       zone="Asia/Tokyo"
                       v-model="precheckinFormData.check_out_date"
-                      format="yyyy-MM-dd"
+                      :readonly="verifyReservation"
+                      @click.native="hidePopup"
                     ></datetime>
                     <error-message :message="errors[0]"></error-message>
                   </ValidationProvider>
@@ -145,7 +152,7 @@
               </div>
             </ValidationObserver>
           </div>
-          <div v-show="!firstStep">
+          <div v-show="step2">
             <!-- 生年月日 -->
             <div>
               <p class="w-100 mb-1">
@@ -163,7 +170,6 @@
                       value-zone="Asia/Tokyo"
                       zone="Asia/Tokyo"
                       v-model="precheckinFormData.birthdate"
-                      format="yyyy-MM-dd"
                   ></datetime>
                   <error-message :message="errors[0]"></error-message>
                 </ValidationProvider>
@@ -189,12 +195,12 @@
             </div>
           </div>
         </div>
-        <div v-show="firstStep">
+        <div v-show="step1">
           <div class="card-footer border-top pb-3 border-top-0">
             <button type="button" class="btn btn-precheckin fw-120" @click="nextStep()">送信</button>
           </div>
         </div>
-        <div v-show="!firstStep">
+        <div v-show="step2">
           <div class="card-footer border-top pb-3 border-top-0">
             <button type="submit" class="btn btn-precheckin fw-120">送信</button>
           </div>
@@ -211,7 +217,7 @@ import moment from 'moment-timezone';
 import { Datetime } from 'vue-datetime';
 
 export default {
-  props: ['friendLineId', 'precheckinData'],
+  props: ['friendLineId', 'precheckinData', 'haveApiKey'],
   components: {
     Datetime
   },
@@ -221,7 +227,8 @@ export default {
       rootPath: process.env.MIX_ROOT_PATH,
       csrfToken: Util.getCsrfToken(),
       loading: true,
-      firstStep: true,
+      step1: true,
+      step2: false,
       genders: ['男性', '女性', 'その他', '回答しない'],
       companionOptions: {
         single: '一人',
@@ -269,6 +276,10 @@ export default {
         .subtract(20, 'years')
         .tz('Asia/Tokyo')
         .format();
+    },
+
+    verifyReservation() {
+      return !!this.precheckinData.name;
     }
   },
 
@@ -279,9 +290,20 @@ export default {
     nextStep() {
       this.$refs.innerObs.validate().then(success => {
         if (success) {
-          this.firstStep = !this.firstStep;
+          this.step1 = false;
+          this.step2 = true;
         }
       });
+    },
+    hidePopup() {
+      if (this.verifyReservation) {
+        document.querySelectorAll('.vdatetime-overlay').forEach(overlay => {
+          overlay.style.display = 'none';
+        });
+        document.querySelectorAll('.vdatetime-popup').forEach(overlay => {
+          overlay.style.display = 'none';
+        });
+      }
     }
   }
 };
@@ -296,5 +318,12 @@ export default {
 
   .text-sm {
     font-size: 0.7rem;
+  }
+  .precheckin-alert {
+    background-color: #FFECB5;
+    padding: 10px;
+    color: #000000;
+    width: 60%;
+    margin: 0 1.5rem;
   }
 </style>

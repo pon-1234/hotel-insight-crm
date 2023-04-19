@@ -51,7 +51,6 @@
                   value-zone="Asia/Tokyo"
                   zone="Asia/Tokyo"
                   v-model="precheckinFormData.check_in_date"
-                  format="yyyy-MM-dd"
                 ></datetime>
                 <error-message :message="errors[0]"></error-message>
               </ValidationProvider>
