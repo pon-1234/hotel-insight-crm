@@ -16,7 +16,7 @@
             </ValidationObserver>
           </div>
           <div class="card-footer text-align-center border-top-0">
-            <button type="button" class="btn btn-precheckin fw-120" @click="nextStep()">送信</button>
+            <button type="button" class="btn btn-sucess fw-120" @click="nextStep()">送信</button>
           </div>
         </div>
         <div v-show="step2" >
@@ -24,7 +24,7 @@
           <survey-form-content :answers="answers" :startIndex= "STEP1_QUESTION_NUM" :survey="surveyStep2"></survey-form-content>
           </div>
           <div class="card-footer text-align-center border-top-0">
-            <button type="submit" class="btn btn-precheckin fw-120" :startIndex="7">送信</button>
+            <button type="submit" class="btn btn-sucess fw-120" :startIndex="7">送信</button>
           </div>
         </div>
         <loading-indicator :loading="loading"></loading-indicator>
