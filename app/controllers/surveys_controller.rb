@@ -45,7 +45,7 @@ class SurveysController < ApplicationController
         else
           @answers[(index+1).to_s] = { answer: answer.answer }
         end
-      end
+      end if survey_answers.present?
     else
       @answers['2'] = { answer: p[:answers]['1'][:answer] }
       @answers['3'] = { answer: p[:answers]['2'][:answer] }
