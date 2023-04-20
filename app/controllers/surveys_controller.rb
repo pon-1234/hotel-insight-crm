@@ -52,7 +52,7 @@ class SurveysController < ApplicationController
       friend = LineFriend.find_by_line_user_id @friend_id
       pms_api_key = friend.line_account.pms_api_key
       @have_api_key = pms_api_key.present?
-      reservations = get_reservations(pms_api_key, @answers)
+      reservations = get_reservations(pms_api_key, @answers) rescue nil
       first_reservation = reservations&.find { |h| h['rsvStatus'] != 'Canceled' }
       @answers['4'] = { answer: first_reservation&.[]('checkOutDate') }
       @answers['8'] = { answer: first_reservation&.[]('companion') }
@@ -72,7 +72,7 @@ class SurveysController < ApplicationController
 
     friend = LineFriend.find_by_line_user_id params[:friend_id]
     pms_api_key = friend.line_account.pms_api_key
-    reservations = get_reservations(pms_api_key, p[:answers])
+    reservations = get_reservations(pms_api_key, p[:answers]) rescue nil
     first_reservation = reservations&.find { |h| h['rsvStatus'] != 'Canceled' }
 
     if first_reservation.present?
