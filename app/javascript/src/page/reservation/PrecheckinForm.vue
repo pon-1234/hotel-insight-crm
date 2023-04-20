@@ -58,7 +58,7 @@
           </div>
         </div>
         <div class="card-footer border-top pb-3 border-top-0">
-          <button type="submit" class="btn btn-sucess fw-120">予約照合</button>
+          <button type="submit" class="btn btn-success fw-120">予約照合</button>
         </div>
         <loading-indicator :loading="loading"></loading-indicator>
       </div>
