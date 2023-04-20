@@ -50,7 +50,6 @@
               :name="`answers[${3}][answer]`"
               v-model="answers[3].answer"
               :readonly="verifyReservation"
-              @click.native="hidePopup"
             ></datetime>
             <i class="dripicons-chevron-down dropdown-icon"></i>
           </div>
@@ -71,7 +70,6 @@
               :name="`answers[${4}][answer]`"
               v-model="dateAnswer"
               :readonly="verifyReservation"
-              @click.native="hidePopup"
             ></datetime>
             <i class="dripicons-chevron-down dropdown-icon"></i>
           </div>
@@ -135,6 +133,16 @@ export default {
     };
   },
 
+  mounted() {
+    if (this.verifyReservation) {
+      const elements = document.querySelectorAll('.vdatetime > div');
+      const firstTwoElements = Array.prototype.slice.call(elements, 0, 2);
+      firstTwoElements.forEach(element => {
+        element.remove();
+      });
+    }
+  },
+
   created() {
     if (this.answers && this.answers[4].answer) {
       this.dateAnswer = this.answers[4].answer;
@@ -147,18 +155,6 @@ export default {
     }
   },
 
-  methods: {
-    hidePopup() {
-      if (this.verifyReservation) {
-        document.querySelectorAll('.vdatetime-overlay').forEach(overlay => {
-          overlay.style.display = 'none';
-        });
-        document.querySelectorAll('.vdatetime-popup').forEach(overlay => {
-          overlay.style.display = 'none';
-        });
-      }
-    }
-  },
   watch: {
     dateAnswer(newVal, oldVal) {
       if (newVal) {

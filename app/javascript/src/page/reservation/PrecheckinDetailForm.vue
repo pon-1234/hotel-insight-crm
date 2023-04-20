@@ -79,7 +79,6 @@
                       zone="Asia/Tokyo"
                       v-model="precheckinFormData.check_in_date"
                       :readonly="verifyReservation"
-                      @click.native="hidePopup"
                     ></datetime>
                     <error-message :message="errors[0]"></error-message>
                   </ValidationProvider>
@@ -105,7 +104,6 @@
                       zone="Asia/Tokyo"
                       v-model="precheckinFormData.check_out_date"
                       :readonly="verifyReservation"
-                      @click.native="hidePopup"
                     ></datetime>
                     <error-message :message="errors[0]"></error-message>
                   </ValidationProvider>
@@ -266,6 +264,16 @@ export default {
     }
   },
 
+  mounted() {
+    if (this.verifyReservation) {
+      const elements = document.querySelectorAll('.vdatetime > div');
+      const firstTwoElements = Array.prototype.slice.call(elements, 0, 2);
+      firstTwoElements.forEach(element => {
+        element.remove();
+      });
+    }
+  },
+
   computed: {
     formAction() {
       return `${this.rootPath}/reservations/precheckin_detail/${this.friendLineId}`;
@@ -298,16 +306,6 @@ export default {
     },
     setIsRequired() {
       this.isRequired = true;
-    },
-    hidePopup() {
-      if (this.verifyReservation) {
-        document.querySelectorAll('.vdatetime-overlay').forEach(overlay => {
-          overlay.style.display = 'none';
-        });
-        document.querySelectorAll('.vdatetime-popup').forEach(overlay => {
-          overlay.style.display = 'none';
-        });
-      }
     }
   },
   watch: {

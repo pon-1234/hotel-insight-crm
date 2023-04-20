@@ -139,3 +139,17 @@ export default {
     object-fit: contain;
   }
 </style>
+
+<style>
+.btn-precheckin {
+  background: #18A0FB;
+  border-radius: 6px;
+  color: #FFFFFF;
+  font-size: 12px;
+}
+
+.btn-precheckin:hover {
+  background: #286090;
+  color: #FFFFFF;
+}
+</style>
