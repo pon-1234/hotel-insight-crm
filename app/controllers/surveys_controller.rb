@@ -38,7 +38,7 @@ class SurveysController < ApplicationController
     p = format_answer_params
     precheckin = ReservationPrecheckin.find_by(phone_number: p[:answers]['1'][:answer], check_in_date: p[:answers]['2'][:answer])
     if precheckin.present?
-      survey_answers = precheckin.survey_response.survey_answers.includes(:file_blob, file_attachment: [:blob])
+      survey_answers = precheckin.survey_response&.survey_answers.includes(:file_blob, file_attachment: [:blob])
       survey_answers.each_with_index do |answer, index|
         if answer.file_blob.present?
           @answers[(index+1).to_s] = { answer: answer.file_blob.filename.to_s }
