@@ -170,7 +170,7 @@ class SurveysController < ApplicationController
     end
 
     def can_answer?(survey, friend)
-      survey.present? and friend.present? and survey.published? and survey.line_account_id == friend.line_account_id
+      survey.present? and friend.present? and survey.published?
     end
 
     def redirect_if_already_answered
