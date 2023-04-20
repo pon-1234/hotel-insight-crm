@@ -114,7 +114,8 @@ class SurveysController < ApplicationController
     }
     PushMessageToLineJob.perform_now(payload)
     redirect_to survey_answer_success_path(code: params[:code], friend_id: params[:friend_id])
-  rescue
+  rescue => exception
+    Rails.logger.error exception.message
     redirect_to survey_answer_error_path(code: params[:code], friend_id: params[:friend_id])
   end
 
@@ -122,7 +123,8 @@ class SurveysController < ApplicationController
   def answer
     build_answer(@survey, answer_params)
     redirect_to survey_answer_success_path(code: params[:code], friend_id: params[:friend_id])
-  rescue
+  rescue => exception
+    Rails.logger.error exception.message
     redirect_to survey_answer_error_path(code: params[:code], friend_id: params[:friend_id])
   end
 
