@@ -86,8 +86,21 @@ class SurveysController < ApplicationController
 
     precheckin = ReservationPrecheckin.find_by(precheckin_default_params(friend, p[:answers]).slice('phone_number', 'check_in_date'))
     if precheckin.present?
-      precheckin.update(precheckin_default_params(friend, p[:answers]))
-      update_answer(@survey, precheckin.survey_response.survey_answers, p)
+      start_with_question = 5
+      reservation_precheckin_params = {}
+
+      %w[address gender birthdate companion].each.with_index(start_with_question) do |attr, index|
+        reservation_precheckin_params[attr] = get_answer(index, p[:answers])
+      end
+
+      answers_params = {
+        answers: p[:answers].select { |k, v| k.to_i >= start_with_question },
+        code: p[:code],
+        friend_id: p[:friend_id]
+      }
+
+      precheckin.update(reservation_precheckin_params)
+      update_answer(@survey, precheckin.survey_response.survey_answers.offset(start_with_question - 1), answers_params)
       messages = [{ 'text'=>I18n.t('messages.precheckin.update_success'), 'type'=>'text' }]
     else
       precheckined = ReservationPrecheckin.create!(precheckin_default_params(friend, p[:answers]))

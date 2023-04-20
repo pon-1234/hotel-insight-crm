@@ -67,7 +67,7 @@ class ReservationsController < ApplicationController
       }
     end
     if precheckin = ReservationPrecheckin.find_by(p.slice(:phone_number, :check_in_date))
-      precheckin.update(p)
+      precheckin.update(p.except(:name, :phone_number, :check_in_date, :check_out_date))
       messages = [{ 'text'=>I18n.t('messages.precheckin.update_success'), 'type'=>'text' }]
     else
       ReservationPrecheckin.create!(p.merge(line_friend_id: friend.id, line_account_id: friend.line_account_id))

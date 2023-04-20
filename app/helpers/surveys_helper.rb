@@ -41,10 +41,11 @@ module SurveysHelper
     response = SurveyResponse.find_by(survey_id: survey.id, line_friend_id: friend.id)
 
     answer_params = params[:answers]
+    start_with_question = answer_params.keys.first.to_i
     survey_answers.each_with_index do |survey_answer, index|
       question = SurveyQuestion.find(survey_answer.survey_question_id)
 
-      ans = answer_params[(index+1).to_s][:answer]
+      ans = answer_params[(index + start_with_question).to_s][:answer]
       if question.file? && ans.present?
         survey_answer.file.purge
         survey_answer.file = ans
