@@ -7,6 +7,7 @@
 #  id                   :bigint           not null, primary key
 #  line_account_id      :bigint
 #  folder_id            :bigint
+#  type                 :string(255)      default("normal")
 #  code                 :string(255)
 #  name                 :string(255)
 #  banner_url           :string(255)

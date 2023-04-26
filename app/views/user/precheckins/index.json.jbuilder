@@ -8,6 +8,6 @@ json.meta do
 end
 json.data do
   json.array! @precheckins do |precheckin|
-    json.(precheckin, :id, :name, :phone_number, :check_in_date, :address, :birthday, :companion, :gender)
+    json.(precheckin, :id, :name, :phone_number, :check_in_date, :check_out_date, :address, :birthdate, :companion, :gender)
   end
 end

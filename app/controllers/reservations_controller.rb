@@ -16,23 +16,32 @@ class ReservationsController < ApplicationController
 
   # POST /reservations/precheckin/:friend_line_id
   def precheckin
-    if precheckin = ReservationPrecheckin.find_by(precheckin_params)
+    p = format_precheckin_params
+    if precheckin = ReservationPrecheckin.find_by(p)
       @precheckin_data = precheckin.slice(ReservationPrecheckin::ATTRIBUTES)
     else
-      @precheckin_data = precheckin_params.slice(:phone_number, :check_in_date)
+      @precheckin_data = p.slice(:phone_number, :check_in_date)
       friend = LineFriend.find_by_line_user_id params[:friend_line_id]
       pms_api_key = friend.line_account.pms_api_key
-      if reservation = get_reservation(pms_api_key, precheckin_params)
-        @precheckin_data[:companion] = reservation['companion']
-        guest = Pms::Guest::GetGuests.new(pms_api_key).perform(reservation['guestId'])
+      @have_api_key = pms_api_key.present?
+      reservations = get_reservations(pms_api_key, p)
+      first_reservation = reservations.find { |h| h['rsvStatus'] != 'Canceled' }
+
+      if first_reservation.present?
+        @precheckin_data[:check_out_date] = first_reservation['checkOutDate']
+        @precheckin_data[:companion] = first_reservation['companion']
+        guest = Pms::Guest::GetGuests.new(pms_api_key).perform(first_reservation['guestId'])
         if guest.present?
           @precheckin_data[:name] = guest['name']
           @precheckin_data[:address] = guest['address']
-          @precheckin_data[:birthday] = guest['birthday']
+          @precheckin_data[:birthdate] = guest['birthdate']
           @precheckin_data[:gender] = guest['gender']
         end
       end
     end
+    render :precheckin_detail_form
+  rescue => exception
+    Rails.logger.error exception.message
     render :precheckin_detail_form
   end
 
@@ -44,17 +53,24 @@ class ReservationsController < ApplicationController
 
   # POST /reservations/precheckin_detail
   def precheckin_detail
+    p = format_precheckin_params
     friend = LineFriend.find_by_line_user_id params[:friend_line_id]
     pms_api_key = friend.line_account.pms_api_key
-    if reservation = get_reservation(pms_api_key, precheckin_params)
-      Pms::Guest::UpdateGuest.new(pms_api_key).perform(reservation['guestId'], precheckin_params.slice(:birthday, :gender))
-      Pms::Reservation::UpdateReservations.new(pms_api_key).perform(reservation['id'], { companion: precheckin_params[:companion] })
+    reservations = get_reservations(pms_api_key, p)
+    first_reservation = reservations&.find { |h| h['rsvStatus'] != 'Canceled' }
+    if first_reservation.present?
+      reservation_ids = reservations.select { |h| h['rsvStatus'] != 'Canceled' }.map { |h| h['id'] }
+      Pms::Guest::UpdateGuest.new(pms_api_key).perform(first_reservation['guestId'], p.slice(:birthdate, :gender, :address))
+      reservation_ids&.each {
+        |reservation_id|
+        Pms::Reservation::UpdateReservations.new(pms_api_key).perform(reservation_id, { companion: p[:companion] })
+      }
     end
-    if precheckin = ReservationPrecheckin.find_by(precheckin_params.slice(:phone_number, :check_in_date))
-      precheckin.update(precheckin_params)
+    if precheckin = ReservationPrecheckin.find_by(p.slice(:phone_number, :check_in_date))
+      precheckin.update(p.except(:name, :phone_number, :check_in_date, :check_out_date))
       messages = [{ 'text'=>I18n.t('messages.precheckin.update_success'), 'type'=>'text' }]
     else
-      ReservationPrecheckin.create!(precheckin_params.merge(line_friend_id: friend.id, line_account_id: friend.line_account_id))
+      ReservationPrecheckin.create!(p.merge(line_friend_id: friend.id, line_account_id: friend.line_account_id))
       messages = [{ 'text'=>I18n.t('messages.precheckin.create_success'), 'type'=>'text' }]
     end
     payload = {
@@ -64,7 +80,7 @@ class ReservationsController < ApplicationController
     PushMessageToLineJob.perform_now(payload)
     redirect_to reservation_precheckin_success_path
   rescue => exception
-    puts exception.message
+    Rails.logger.error exception.message
   end
 
   # GET /reservations/inquiry_success
@@ -101,6 +117,16 @@ class ReservationsController < ApplicationController
         .permit(ReservationPrecheckin::ATTRIBUTES)
     end
 
+    def format_precheckin_params
+      precheckin_params.to_h.each_with_object({}) do |(key, value), formatted|
+        if value&.match?(/\d{4}年\d{1,2}月\d{1,2}日/)
+          formatted[key] = Date.parse(value.gsub(/(\d{4})年(\d{1,2})月(\d{1,2})日/, '\1-\2-\3')).strftime("%Y-%m-%d")
+        else
+          formatted[key] = value
+        end
+      end.transform_keys(&:to_sym)
+    end
+
     def inquiry_params
       params
         .require(:inquiry)
@@ -118,13 +144,12 @@ class ReservationsController < ApplicationController
       @available_room_params.to_h.deep_transform_keys! { |key| key.to_s.camelize(:lower) }
     end
 
-    def get_reservation(pms_api_key, params)
+    def get_reservations(pms_api_key, params)
       reservation_info = {
         checkInFrom: params[:check_in_date],
         checkInTo: params[:check_in_date],
         guestPhoneNumber: params[:phone_number]
       }
-      response = Pms::Reservation::SearchReservations.new(pms_api_key).perform(reservation_info)
-      response.first if response.present?
+      Pms::Reservation::SearchReservations.new(pms_api_key).perform(reservation_info)
     end
 end

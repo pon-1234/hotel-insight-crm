@@ -5,6 +5,9 @@ Things you may want to cover:
 - Ruby version
   2.6.3
 
+- Node version
+  12
+
 - Dependencies
 
 ffmpeg, imagemagick

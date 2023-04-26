@@ -12,14 +12,13 @@ class SyncResponseToGoogleSheetJob < ApplicationJob
     # Get access token
     sheets.authorization = survey.google_oauth_access_token
 
-    questions = survey.survey_questions
     answers = response.survey_answers.map { |x| x.norm_answer }
     data = [response.id, response.created_at, response.line_friend_id, response.line_friend_name] + answers
     values = [
       data
     ]
     value_range = Google::Apis::SheetsV4::ValueRange.new(values: values)
-    result = sheets.append_spreadsheet_value(survey.spreadsheet_id,
+    sheets.append_spreadsheet_value(survey.spreadsheet_id,
                                               'A:A',
                                               value_range,
                                               value_input_option: 'RAW')

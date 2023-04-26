@@ -299,7 +299,7 @@ export const PostbackTypes = {
   rsv_intro: '予約・紹介送信',
   rsv_cancel_intro: '予約・空室待ちキャンセル',
   rsv_contact: '予約・お問い合わせ',
-  precheckin: '予約・事前チェックイン',
+  // precheckin: '予約・事前チェックイン',
   // service_review: 'サービス評価フォーム送信',
   assign_staff: '担当者割り当て',
   none: '何もしない'
@@ -444,5 +444,148 @@ export const ActionObjectsCollect = [
       type: 'survey',
       label: '回答フォーム'
     }
+  }
+];
+
+export const PrecheckinQuestions =
+[
+  {
+    type: 'text',
+    order: 0,
+    required: true,
+    immutable: true,
+    content: {
+      name: 'survey-question-editor-text-0',
+      text: 'お名前 / Name',
+      input_name: 'name'
+    }
+  },
+  {
+    type: 'text',
+    order: 1,
+    required: true,
+    immutable: true,
+    content: {
+      name: 'survey-question-editor-text-1',
+      text: '電話番号 / Phone Number',
+      sub_text: 'ご予約に使った電話番号をご入力してください',
+      input_name: 'phone_number'
+    }
+  },
+  {
+    type: 'date',
+    order: 2,
+    required: true,
+    immutable: true,
+    content: {
+      name: 'survey-question-editor-text-2',
+      text: 'チェックイン日 / Check-In Date',
+      sub_text: 'ご予約のチェックイン日をご入力してください',
+      input_name: 'check_in_date'
+    }
+  },
+  {
+    type: 'date',
+    order: 3,
+    required: true,
+    immutable: true,
+    content: {
+      name: 'survey-question-editor-text-3',
+      text: 'チェックアウト日 / Check-Out Date',
+      sub_text: 'ご予約のチェックアウト日をご入力してください',
+      input_name: 'check_out_date'
+    }
+  },
+  {
+    type: 'text',
+    required: true,
+    immutable: true,
+    order: 4,
+    content: {
+      name: 'survey-question-editor-text-4',
+      text: '住所 / Address',
+      input_name: 'address'
+    }
+  },
+  {
+    type: 'pulldown',
+    order: 5,
+    required: true,
+    immutable: true,
+    content: {
+      text: '性別 / Gender',
+      name: 'survey-question-editor-pulldown-5',
+      options: [
+        {
+          value: '男性'
+        },
+        {
+          value: '女性'
+        },
+        {
+          value: 'その他'
+        },
+        {
+          value: '回答しない'
+        }
+      ]
+    }
+  },
+  {
+    type: 'date',
+    order: 6,
+    required: true,
+    immutable: true,
+    content: {
+      name: 'survey-question-editor-text-6',
+      text: '生年月日 / Birthdate',
+      input_name: 'birthday'
+    }
+  },
+  {
+    type: 'pulldown',
+    order: 7,
+    required: true,
+    immutable: true,
+    content: {
+      text: 'ご利用シーン / Use Scene',
+      name: 'survey-question-editor-pulldown-7',
+      options: [
+        {
+          key: 'single',
+          value: '一人'
+        },
+        {
+          key: 'couple',
+          value: '恋人'
+        },
+        {
+          key: 'friends',
+          value: '友達'
+        },
+        {
+          key: 'family',
+          value: '家族'
+        },
+        {
+          key: 'business',
+          value: 'ビジネス'
+        },
+        {
+          key: 'other',
+          value: 'その他'
+        }
+      ]
+    }
+  }
+];
+
+export const NormalQuestion =
+[
+  {
+    editing: true,
+    required: false,
+    type: 'text',
+    content: null
   }
 ];

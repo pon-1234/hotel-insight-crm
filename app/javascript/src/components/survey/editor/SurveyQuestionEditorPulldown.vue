@@ -12,6 +12,7 @@
           placeholder="項目名を入力してください"
           v-validate="'required|max:255'"
           data-vv-as="項目名"
+          :readonly="immutable"
         />
         <error-message :message="errors.first(name + '-text')"></error-message>
       </div>
@@ -33,6 +34,7 @@
           maxlength="256"
           v-validate="'max:255'"
           data-vv-as="補足文"
+          :readonly="immutable"
         />
         <error-message :message="errors.first(name + '-subtext')"></error-message>
       </div>
@@ -58,15 +60,16 @@
           <div class="card-header d-flex">
             <div>選択肢 {{ index + 1 }}</div>
             <div class="ml-auto">
-              <div @click="moveUpObject(index)" class="btn btn-sm btn-light" v-if="index > 0">
-                <i class="dripicons-chevron-up"></i>
-              </div>
-              <div @click="moveDownObject(index)" class="btn btn-sm btn-light" v-if="index < options.length - 1">
-                <i class="dripicons-chevron-down"></i>
-              </div>
-
-              <div @click="removeObject(index)" v-if="options.length > 1" class="btn btn-sm btn-light">
-                <i class="mdi mdi-delete"></i>
+              <div v-if="!immutable">
+                <div @click="moveUpObject(index)" class="btn btn-sm btn-light" v-if="index > 0">
+                  <i class="dripicons-chevron-up"></i>
+                </div>
+                <div @click="moveDownObject(index)" class="btn btn-sm btn-light" v-if="index < options.length - 1">
+                  <i class="dripicons-chevron-down"></i>
+                </div>
+                <div @click="removeObject(index)" v-if="options.length > 1" class="btn btn-sm btn-light">
+                  <i class="mdi mdi-delete"></i>
+                </div>
               </div>
             </div>
           </div>
@@ -82,6 +85,7 @@
                 :name="name + '-value-' + index"
                 v-model.trim="item.value"
                 placeholder="ラベルを入力してください"
+                :readonly="immutable"
               />
             </div>
             <div class="form-group d-flex mt-2">
@@ -96,6 +100,7 @@
                     :name="name + '-postback-' + index"
                     :requiredLabel="false"
                     @input="item.action = $event"
+                    :immutable="immutable"
                   ></action-postback>
                 </div>
               </div>
@@ -103,7 +108,7 @@
           </div>
         </div>
         <div class="mt-2">
-          <div @click="addItem()" v-if="options.length < max" class="btn btn-info">
+          <div @click="addItem()" v-if="options.length < max && !immutable" class="btn btn-info">
             <i class="uil-plus"></i> 選択肢追加
           </div>
         </div>
@@ -115,7 +120,7 @@
 
 <script>
 export default {
-  props: ['content', 'name'],
+  props: ['content', 'name', 'immutable'],
   data() {
     return {
       max: 50,

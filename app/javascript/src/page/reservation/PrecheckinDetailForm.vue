@@ -11,12 +11,18 @@
       <input type="hidden" name="precheckin[friend_line_id]" :value="friendLineId" />
       <div class="card">
         <div class="card-header border-bottom border-success"><h4>事前チェックインフォーム</h4></div>
+        <div v-if="!verifyReservation && haveApiKey && step1" class="font-10 mt-2 precheckin-alert">
+          予約を照合できませんでした、予約データのご入力をお願いいたします。
+        </div>
         <div class="card-body">
-          <div v-show="firstStep">
+          <div v-show="step1">
             <ValidationObserver ref="innerObs">
               <!-- お名前 -->
-              <div class="form-group row">
-                <label class="col-lg-4">お名前<required-mark></required-mark></label>
+              <div>
+                <p class="w-100 mb-1">
+                  <span class="border-success question-title mr-2 font-weight-bold">Q1</span
+                  >お名前 <required-mark></required-mark>
+                </p>
                 <div class="col-lg-8">
                   <ValidationProvider name="お名前" rules="required|max:255" v-slot="{ errors }">
                     <input
@@ -25,6 +31,7 @@
                       name="precheckin[name]"
                       placeholder="お名前を入力してください"
                       v-model.trim="precheckinFormData.name"
+                      :readonly="verifyReservation"
                     />
                     <span class="error-explanation">{{ errors[0] }}</span>
                   </ValidationProvider>
@@ -32,8 +39,12 @@
               </div>
 
               <!-- 電話番号 -->
-              <div class="form-group row">
-                <label class="col-lg-4">電話番号<required-mark></required-mark></label>
+              <div>
+                <p class="w-100 mb-1">
+                  <span class="border-success question-title mr-2 font-weight-bold">Q2</span
+                  >電話番号 / Phone Number <required-mark></required-mark>
+                </p>
+                <div class="w-100 text-muted text-sm my-1">ご予約に使った電話番号をご入力してください</div>
                 <div class="col-lg-8">
                   <ValidationProvider name="電話番号" rules="required|numeric|min:10|max:11" v-slot="{ errors }">
                     <input
@@ -42,6 +53,7 @@
                       name="precheckin[phone_number]"
                       placeholder="電話番号を入力してください"
                       v-model.trim="precheckinFormData.phone_number"
+                      :readonly="verifyReservation"
                     />
                     <span class="error-explanation">{{ errors[0] }}</span>
                   </ValidationProvider>
@@ -49,8 +61,12 @@
               </div>
 
               <!-- チェックイン日 -->
-              <div class="form-group row">
-                <label class="col-lg-4">チェックイン日<required-mark /></label>
+              <div>
+                <p class="w-100 mb-1">
+                  <span class="border-success question-title mr-2 font-weight-bold">Q3</span
+                  >チェックイン日 / Check-In Date <required-mark></required-mark>
+                </p>
+                <div class="w-100 text-muted text-sm my-1">ご予約のチェックイン日をご入力してください</div>
                 <div class="col-lg-8">
                   <ValidationProvider name="チェックイン日" rules="required" v-slot="{ errors }">
                     <datetime
@@ -62,7 +78,32 @@
                       value-zone="Asia/Tokyo"
                       zone="Asia/Tokyo"
                       v-model="precheckinFormData.check_in_date"
-                      format="yyyy-MM-dd"
+                      :readonly="verifyReservation"
+                    ></datetime>
+                    <error-message :message="errors[0]"></error-message>
+                  </ValidationProvider>
+                </div>
+              </div>
+
+              <!-- チェックアウト日 -->
+              <div>
+                <p class="w-100 mb-1">
+                  <span class="border-success question-title mr-2 font-weight-bold">Q4</span
+                  >チェックアウト日 / Check-Out Date <required-mark></required-mark>
+                </p>
+                <div class="w-100 text-muted text-sm my-1">ご予約のチェックアウト日をご入力してください</div>
+                <div class="col-lg-8">
+                  <ValidationProvider name="チェックアウト日" :rules="{ required: isRequired }" v-slot="{ errors }">
+                    <datetime
+                      input-class="form-control"
+                      type="date"
+                      :phrases="{ ok: '確定', cancel: '閉じる' }"
+                      placeholder="チェックアウト日を選択してください"
+                      name="precheckin[check_out_date]"
+                      value-zone="Asia/Tokyo"
+                      zone="Asia/Tokyo"
+                      v-model="precheckinFormData.check_out_date"
+                      :readonly="verifyReservation"
                     ></datetime>
                     <error-message :message="errors[0]"></error-message>
                   </ValidationProvider>
@@ -70,8 +111,11 @@
               </div>
 
               <!-- 住所 -->
-              <div class="form-group row">
-                <label class="col-lg-4">住所<required-mark></required-mark></label>
+              <div>
+                <p class="w-100 mb-1">
+                  <span class="border-success question-title mr-2 font-weight-bold">Q5</span
+                  >住所 / Address <required-mark></required-mark>
+                </p>
                 <div class="col-lg-8">
                   <ValidationProvider name="住所" rules="required|max:255" v-slot="{ errors }">
                     <input
@@ -86,24 +130,44 @@
                   </ValidationProvider>
                 </div>
               </div>
+
+              <!-- 性別 -->
+              <div>
+                <p class="w-100 mb-1">
+                  <span class="border-success question-title mr-2 font-weight-bold">Q6</span
+                  >性別 / Gender <required-mark></required-mark>
+                </p>
+                <div class="col-lg-8">
+                  <ValidationProvider name="性別" rules="required" v-slot="{ errors }">
+                    <select v-model="precheckinFormData.gender" name="precheckin[gender]" class="form-control">
+                      <option v-for="(gender, index) in genders" :key="index" :value="index">
+                        {{ gender }}
+                      </option>
+                    </select>
+                    <span class="error-explanation">{{ errors[0] }}</span>
+                  </ValidationProvider>
+                </div>
+              </div>
             </ValidationObserver>
           </div>
-          <div v-show="!firstStep">
-            <!-- 誕生日 -->
-            <div class="form-group row">
-              <label class="col-lg-4">誕生日<required-mark></required-mark></label>
+          <div v-show="step2">
+            <!-- 生年月日 -->
+            <div>
+              <p class="w-100 mb-1">
+                <span class="border-success question-title mr-2 font-weight-bold">Q7</span
+                >生年月日 / Birthdate <required-mark></required-mark>
+              </p>
               <div class="col-lg-8">
-                <ValidationProvider name="誕生日" rules="required" v-slot="{ errors }">
+                <ValidationProvider name="生年月日" rules="required" v-slot="{ errors }">
                   <datetime
                       input-class="form-control"
                       type="date"
                       :phrases="{ ok: '確定', cancel: '閉じる' }"
                       placeholder="チェックイン日を選択してください"
-                      name="precheckin[birthday]"
+                      name="precheckin[birthdate]"
                       value-zone="Asia/Tokyo"
                       zone="Asia/Tokyo"
-                      v-model="precheckinFormData.birthday"
-                      format="yyyy-MM-dd"
+                      v-model="precheckinFormData.birthdate"
                   ></datetime>
                   <error-message :message="errors[0]"></error-message>
                 </ValidationProvider>
@@ -111,8 +175,11 @@
             </div>
 
             <!-- ご利用シーン -->
-            <div class="form-group row">
-              <label class="col-lg-4">ご利用シーン<required-mark></required-mark></label>
+            <div>
+              <p class="w-100 mb-1">
+                <span class="border-success question-title mr-2 font-weight-bold">Q7</span
+                >ご利用シーン / Use Scene <required-mark></required-mark>
+              </p>
               <div class="col-lg-8">
                 <ValidationProvider name="ご利用シーン" rules="required" v-slot="{ errors }">
                   <select v-model="precheckinFormData.companion" name="precheckin[companion]" class="form-control">
@@ -124,31 +191,15 @@
                 </ValidationProvider>
               </div>
             </div>
-
-            <!-- 性別 -->
-            <div class="form-group row">
-              <label class="col-lg-4">性別<required-mark></required-mark></label>
-              <div class="col-lg-8">
-                <ValidationProvider name="性別" rules="required" v-slot="{ errors }">
-                  <select v-model="precheckinFormData.gender" name="precheckin[gender]" class="form-control">
-                    <option v-for="(gender, index) in genders" :key="index" :value="index">
-                      {{ gender }}
-                    </option>
-                  </select>
-                  <span class="error-explanation">{{ errors[0] }}</span>
-                </ValidationProvider>
-              </div>
-            </div>
           </div>
         </div>
-        <div v-show="firstStep">
-          <div class="card-footer border-top border-success text-center py-3">
-            <button type="button" class="btn btn-success fw-120" @click="nextStep()">次へ</button>
+        <div v-show="step1">
+          <div class="card-footer border-top pb-3 border-top-0">
+            <button type="button" class="btn btn-success fw-120" @click="nextStep()">送信</button>
           </div>
         </div>
-        <div v-show="!firstStep">
-          <div class="card-footer border-top border-success text-center py-3">
-            <button type="button" class="btn btn-success fw-120 back-button" @click="firstStep = !firstStep">戻る</button>
+        <div v-show="step2">
+          <div class="card-footer border-top pb-3 border-top-0">
             <button type="submit" class="btn btn-success fw-120">送信</button>
           </div>
         </div>
@@ -164,7 +215,7 @@ import moment from 'moment-timezone';
 import { Datetime } from 'vue-datetime';
 
 export default {
-  props: ['friendLineId', 'precheckinData'],
+  props: ['friendLineId', 'precheckinData', 'haveApiKey'],
   components: {
     Datetime
   },
@@ -174,7 +225,8 @@ export default {
       rootPath: process.env.MIX_ROOT_PATH,
       csrfToken: Util.getCsrfToken(),
       loading: true,
-      firstStep: true,
+      step1: true,
+      step2: false,
       genders: ['男性', '女性', 'その他', '回答しない'],
       companionOptions: {
         single: '一人',
@@ -188,11 +240,13 @@ export default {
         name: null,
         phone_number: null,
         check_in_date: null,
+        check_out_date: null,
         address: null,
-        birthday: null,
+        birthdate: null,
         companion: null,
         gender: null
-      }
+      },
+      isRequired: false
     };
   },
 
@@ -205,10 +259,19 @@ export default {
     if (!Object.keys(this.companionOptions).includes(this.precheckinFormData.companion)) {
       this.precheckinFormData.companion = null;
     }
+    if (!this.precheckinFormData.birthdate) {
+      this.precheckinFormData.birthdate = this.defaultStartBirthdate;
+    }
   },
 
   mounted() {
-    this.precheckinFormData.birthday = this.defaultStartBirthday;
+    if (this.verifyReservation) {
+      const elements = document.querySelectorAll('.vdatetime > div');
+      const firstTwoElements = Array.prototype.slice.call(elements, 0, 2);
+      firstTwoElements.forEach(element => {
+        element.remove();
+      });
+    }
   },
 
   computed: {
@@ -216,11 +279,15 @@ export default {
       return `${this.rootPath}/reservations/precheckin_detail/${this.friendLineId}`;
     },
 
-    defaultStartBirthday() {
+    defaultStartBirthdate() {
       return moment()
         .subtract(20, 'years')
         .tz('Asia/Tokyo')
         .format();
+    },
+
+    verifyReservation() {
+      return !!this.precheckinData.name;
     }
   },
 
@@ -228,12 +295,24 @@ export default {
     async onSubmit(e) {
       this.$refs.form.submit();
     },
-    nextStep() {
+    async nextStep() {
+      await this.setIsRequired();
       this.$refs.innerObs.validate().then(success => {
         if (success) {
-          this.firstStep = !this.firstStep;
+          this.step1 = false;
+          this.step2 = true;
         }
       });
+    },
+    setIsRequired() {
+      this.isRequired = true;
+    }
+  },
+  watch: {
+    'precheckinFormData.check_out_date': function(newValue) {
+      if (newValue) {
+        this.isRequired = true;
+      }
     }
   }
 };
@@ -241,5 +320,19 @@ export default {
 <style lang="scss" scoped>
   .back-button {
     margin-right: 100px;
+  }
+  .question-title {
+    border-bottom: 3px solid #0acf97;
+  }
+
+  .text-sm {
+    font-size: 0.7rem;
+  }
+  .precheckin-alert {
+    background-color: #FFECB5;
+    padding: 10px;
+    color: #000000;
+    width: 60%;
+    margin: 0 1.5rem;
   }
 </style>

@@ -24,6 +24,7 @@
             <thead class="thead-light">
               <tr>
                 <th class="d-none d-lg-table-cell">チェックイン日</th>
+                <th class="d-none d-lg-table-cell">チェックアウト日</th>
                 <th>お名前</th>
                 <th>電話番号</th>
                 <th>住所</th>
@@ -34,11 +35,12 @@
             </thead>
             <tbody>
               <tr v-for="(precheckin, index) in precheckins" :key="index">
-                <td class="fw-150">{{ precheckin.check_in_date }}</td>
+                <td class="fw-150">{{ formatDate(precheckin.check_in_date) }}</td>
+                <td class="fw-150">{{ formatDate(precheckin.check_out_date) }}</td>
                 <td>{{ precheckin.name }}</td>
                 <td>{{ precheckin.phone_number }}</td>
                 <td>{{ precheckin.address }}</td>
-                <td>{{ precheckin.birthday }}</td>
+                <td>{{ formatDate(precheckin.birthdate) }}</td>
                 <td>{{ companionOptions[precheckin.companion] }}</td>
                 <td>{{ genders[precheckin.gender] }}</td>
               </tr>
@@ -64,6 +66,7 @@
 
 <script>
 import { mapActions, mapMutations, mapState } from 'vuex';
+import moment from 'moment';
 
 export default {
   props: {
@@ -75,10 +78,10 @@ export default {
       loading: true,
       genders: ['男性', '女性', 'その他', '回答しない'],
       companionOptions: {
-        single: '一人',
-        couple: '恋人',
-        friends: '友達',
-        family: '家族',
+        single: '一人旅',
+        couple: '恋人と',
+        friends: '友達と',
+        family: '家族と',
         business: 'ビジネス',
         other: 'その他'
       }
@@ -104,6 +107,10 @@ export default {
     search() {
       this.queryParams.page = 0;
       this.loadPage();
+    },
+
+    formatDate(date) {
+      return moment(date, 'YYYY-MM-DD').format('YYYY年MM月DD日');
     },
 
     async loadPage() {

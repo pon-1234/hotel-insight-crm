@@ -42,7 +42,7 @@ class ConnectGoogleSheetJob < ApplicationJob
       ] + question_titles
     ]
     value_range = Google::Apis::SheetsV4::ValueRange.new(values: values)
-    result = sheets.append_spreadsheet_value(@survey.spreadsheet_id,
+    sheets.append_spreadsheet_value(@survey.spreadsheet_id,
                                               "A1:A#{4 + question_titles.size}",
                                               value_range,
                                               value_input_option: 'RAW')
@@ -55,6 +55,6 @@ class ConnectGoogleSheetJob < ApplicationJob
   end
 
   def update_google_oauth_for_related_surveys
-    related_surveys = Survey.where(google_oauth_email: @survey.google_oauth_email).update(google_oauth_tokens: @survey.google_oauth_tokens)
+    Survey.where(google_oauth_email: @survey.google_oauth_email).update(google_oauth_tokens: @survey.google_oauth_tokens)
   end
 end

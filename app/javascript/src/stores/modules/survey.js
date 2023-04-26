@@ -10,7 +10,9 @@ export const state = {
   usersCurPage: 0,
   responsesTotalRows: 0,
   responsesPerPage: 0,
-  responsesCurPage: 0
+  responsesCurPage: 0,
+  datetimeQuestion: {},
+  datetimeRequired: {}
 };
 
 export const mutations = {
@@ -53,10 +55,28 @@ export const mutations = {
     state.responsesTotalRows = meta.total_count;
     state.responsesPerPage = meta.limit_value;
     state.responsesCurPage = meta.current_page;
+  },
+
+  setDatetimeQuestion(state, question) {
+    state.datetimeQuestion = {
+      ...state.datetimeQuestion,
+      [question.ques_num]: question.ques
+    };
+  },
+
+  setDatetimeRequired(state, question) {
+    state.datetimeRequired = {
+      ...state.datetimeRequired,
+      [question.ques_num]: question.status
+    };
   }
 };
 
-export const getters = {};
+export const getters = {
+  getDatetimeRequired: (state) => (quesNum) => {
+    return state.datetimeRequired[quesNum] || false;
+  }
+};
 
 export const actions = {
   async createFolder(context, payload) {

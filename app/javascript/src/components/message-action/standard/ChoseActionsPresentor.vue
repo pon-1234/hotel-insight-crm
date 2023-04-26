@@ -39,9 +39,9 @@ export default {
         case 'scoring':
           result += `スコアリング操作[${action.content.variable.name}]を送信 <br>`;
           break;
-        case 'precheckin':
-          result += '予約・事前チェックインを送信 <br>';
-          break;
+        // case 'precheckin':
+        //   result += '予約・事前チェックインを送信 <br>';
+        //   break;
         case 'rsv_intro':
           result += '予約・紹介送信を送信 <br>';
           break;

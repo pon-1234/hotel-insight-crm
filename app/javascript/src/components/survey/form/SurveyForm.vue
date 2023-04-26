@@ -1,8 +1,8 @@
 <template>
-  <ValidationObserver ref="observer" v-slot="{ validate }">
+  <ValidationObserver ref="observer">
     <form
       ref="form"
-      @submit.prevent="validate().then(onSubmit)"
+      @submit.prevent="onSubmit"
       :action="formAction"
       method="post"
       enctype="multipart/form-data"
@@ -26,7 +26,7 @@
 </template>
 
 <script>
-import { mapActions } from 'vuex';
+import { mapActions, mapMutations, mapState } from 'vuex';
 import Util from '@/core/util.js';
 
 export default {
@@ -54,16 +54,29 @@ export default {
   },
 
   computed: {
+    ...mapState('survey', {
+      datetimeQuestion: state => state.datetimeQuestion
+    }),
+
     formAction() {
       return `${this.userRootUrl}/surveys/${this.code}/${this.friend_id}`;
     }
   },
 
   methods: {
+    ...mapMutations('survey', ['setDatetimeRequired']),
     ...mapActions('survey', ['getSurveyByCode', 'postAnswer']),
 
-    async onSubmit(e) {
-      this.$refs.form.submit();
+    async onSubmit() {
+      await Object.entries(this.datetimeQuestion).forEach(([qnum, ques]) => {
+        if (ques.required) {
+          this.setDatetimeRequired({ ques_num: qnum, status: true });
+        }
+      });
+      const isValid = await this.$refs.observer.validate();
+      if (isValid) {
+        this.$refs.form.submit();
+      }
     }
   }
 };
