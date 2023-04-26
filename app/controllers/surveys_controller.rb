@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
 class SurveysController < ApplicationController
-  before_action :find_survey, only: [:show, :answer, :form, :answer_success, :precheckin_answer]
+  before_action :find_survey, only: [:show, :answer, :form, :answer_success, :precheckin_answer, :precheckin]
+  before_action :find_friend, only: [:form, :precheckin, :precheckin_answer]
 
   include SurveysHelper
 
@@ -16,9 +17,7 @@ class SurveysController < ApplicationController
   # GET /surveys/:code/:friend_id
   def form
     @code = params[:code]
-    @friend_id = params[:friend_id]
-    friend = LineFriend.find_by(line_account_id: @survey.line_account_id, line_user_id: @friend_id)
-    unless can_answer?(@survey, friend)
+    unless can_answer?(@survey, @friend)
       return redirect_to root_path, flash: { warning: '回答フォームにアクセスできません。' }
     end
 
@@ -32,25 +31,22 @@ class SurveysController < ApplicationController
   # POST /surveys/precheckin/:code/:friend_id
   def precheckin
     @code = params[:code]
-    @friend_id = params[:friend_id]
     @answers = {}
 
     p = format_answer_params
     precheckin = ReservationPrecheckin.find_by(phone_number: p[:answers]['1'][:answer], check_in_date: p[:answers]['2'][:answer])
     if precheckin.present?
-      survey_answers = precheckin.survey_response&.survey_answers&.includes(:file_blob, file_attachment: [:blob])
-      survey_answers.each_with_index do |answer, index|
-        if answer.file_blob.present?
-          @answers[(index+1).to_s] = { answer: answer.file_blob.filename.to_s }
-        else
-          @answers[(index+1).to_s] = { answer: answer.answer }
-        end
-      end if survey_answers.present?
+      survey_answers = precheckin.survey_responses&.find_by(survey_id: @survey.id)&.survey_answers
+      if survey_answers.present?
+        fill_answers_default_questions(precheckin)
+        fill_answers_sub_questions(survey_answers)
+      else
+        fill_answers_default_questions(precheckin)
+      end
     else
       @answers['2'] = { answer: p[:answers]['1'][:answer] }
       @answers['3'] = { answer: p[:answers]['2'][:answer] }
-      friend = LineFriend.find_by_line_user_id @friend_id
-      pms_api_key = friend.line_account.pms_api_key
+      pms_api_key = @friend.line_account.pms_api_key
       @have_api_key = pms_api_key.present?
       reservations = get_reservations(pms_api_key, @answers) rescue nil
       first_reservation = reservations&.find { |h| h['rsvStatus'] != 'Canceled' }
@@ -69,47 +65,38 @@ class SurveysController < ApplicationController
   # POST /surveys/precheckin_answer/:code/:friend_id
   def precheckin_answer
     p = format_answer_params
-
-    friend = LineFriend.find_by_line_user_id params[:friend_id]
-    pms_api_key = friend.line_account.pms_api_key
+    pms_api_key = @friend.line_account.pms_api_key
     reservations = get_reservations(pms_api_key, p[:answers]) rescue nil
     first_reservation = reservations&.find { |h| h['rsvStatus'] != 'Canceled' }
 
     if first_reservation.present?
       reservation_ids = reservations.select { |h| h['rsvStatus'] != 'Canceled' }.map { |h| h['id'] }
-      Pms::Guest::UpdateGuest.new(pms_api_key).perform(first_reservation['guestId'], precheckin_default_params(friend, p[:answers]).slice("birthdate", "gender", "address"))
+      Pms::Guest::UpdateGuest.new(pms_api_key).perform(first_reservation['guestId'], precheckin_default_params(@friend, p[:answers]).slice('birthdate', 'gender', 'address'))
       reservation_ids&.each {
         |reservation_id|
-        Pms::Reservation::UpdateReservations.new(pms_api_key).perform(reservation_id, { companion: precheckin_default_params(friend, p[:answers])["companion"] })
+        Pms::Reservation::UpdateReservations.new(pms_api_key).perform(reservation_id, { companion: precheckin_default_params(@friend, p[:answers])['companion'] })
       }
     end
 
-    precheckin = ReservationPrecheckin.find_by(precheckin_default_params(friend, p[:answers]).slice('phone_number', 'check_in_date'))
+    precheckin = ReservationPrecheckin.find_by(precheckin_default_params(@friend, p[:answers]).slice('phone_number', 'check_in_date'))
     if precheckin.present?
       start_with_question = 5
-      reservation_precheckin_params = {}
-
-      %w[address gender birthdate companion].each.with_index(start_with_question) do |attr, index|
-        reservation_precheckin_params[attr] = get_answer(index, p[:answers])
-      end
-
-      answers_params = {
-        answers: p[:answers].select { |k, v| k.to_i >= start_with_question },
-        code: p[:code],
-        friend_id: p[:friend_id]
-      }
-
+      reservation_precheckin_params, answers_params = filter_answers(p, start_with_question)
       precheckin.update(reservation_precheckin_params)
-      update_answer(@survey, precheckin.survey_response.survey_answers.offset(start_with_question - 1), answers_params)
+      survey_answers = precheckin.survey_responses&.find_by(survey_id: @survey.id)&.survey_answers
+      if survey_answers.present?
+        update_answer(@survey, survey_answers.offset(start_with_question - 1), answers_params)
+      else
+        build_answer(@survey, p, precheckin.id)
+      end
       messages = [{ 'text'=>I18n.t('messages.precheckin.update_success'), 'type'=>'text' }]
     else
-      precheckined = ReservationPrecheckin.create!(precheckin_default_params(friend, p[:answers]))
-      
+      precheckined = ReservationPrecheckin.create!(precheckin_default_params(@friend, p[:answers]))
       build_answer(@survey, p, precheckined.id)
       messages = [{ 'text'=>I18n.t('messages.precheckin.create_success'), 'type'=>'text' }]
     end
     payload = {
-      channel_id: friend.channel.id,
+      channel_id: @friend.channel.id,
       messages: messages
     }
     PushMessageToLineJob.perform_now(payload)
@@ -182,6 +169,11 @@ class SurveysController < ApplicationController
 
     def find_survey
       @survey = Survey.find_by(code: params[:code])
+    end
+
+    def find_friend
+      @friend_id = params[:friend_id]
+      @friend = LineFriend.find_by(line_account_id: @survey.line_account_id, line_user_id: @friend_id)
     end
 
     def can_answer?(survey, friend)

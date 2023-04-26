@@ -31,7 +31,7 @@
 class ReservationPrecheckin < ApplicationRecord
   belongs_to :line_account
   belongs_to :line_friend
-  has_one :survey_response
+  has_many :survey_responses
 
   ATTRIBUTES = %i[name phone_number check_in_date check_out_date address birthdate companion gender]
   validates :name, :phone_number, :check_in_date, :check_out_date, :address, :birthdate, :companion, :gender, :line_friend_id, :line_account_id, presence: true

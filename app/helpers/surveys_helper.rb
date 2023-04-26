@@ -60,6 +60,37 @@ module SurveysHelper
     AfterAnsweredSurveyJob.perform_later(response.id)
   end
 
+  def fill_answers_default_questions(reservation_precheckin)
+      %w[name phone_number check_in_date check_out_date address gender birthdate companion].each.with_index(1) do |attr, index|
+        @answers[index.to_s] = { answer: reservation_precheckin[attr] }
+      end
+  end
+
+  def fill_answers_sub_questions(survey_answers)
+    survey_answers.offset(8).includes(:file_blob, file_attachment: [:blob])&.each.with_index(9) do |answer, index|
+      if answer.file_blob.present?
+        @answers[index.to_s] = { answer: answer.file_blob.filename.to_s }
+      else
+        @answers[index.to_s] = { answer: answer.answer }
+      end
+    end
+  end
+
+  def filter_answers(p, start_with_question)
+    reservation_precheckin_params = {}
+
+    %w[address gender birthdate companion].each.with_index(start_with_question) do |attr, index|
+      reservation_precheckin_params[attr] = get_answer(index, p[:answers])
+    end
+
+    answers_params = {
+      answers: p[:answers].select { |k, v| k.to_i >= start_with_question },
+      code: p[:code],
+      friend_id: p[:friend_id]
+    }
+    [reservation_precheckin_params, answers_params]
+  end
+
   private
     def assign_variable(friend, variable_id, answer)
       variable = Variable.find(variable_id)
