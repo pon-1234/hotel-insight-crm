@@ -21,6 +21,6 @@ class ChannelFinder
       else
         @q = channels.reorder('last_activity_at desc')
       end
-      @q.ransack(@params[:q]).result.distinct.limit(30)
+      @q.ransack(@params[:q]).result.distinct.limit(200)
     end
 end

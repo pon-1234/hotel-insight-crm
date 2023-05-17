@@ -22,7 +22,7 @@ set :linked_dirs, %w[log tmp/pids tmp/cache tmp/sockets public/uploads config/se
 # set :branch,        :master
 # set :format,        :pretty
 # set :log_level,     :debug
-set :keep_releases, 4
+set :keep_releases, 2
 
 ## Linked Files & Directories (Default None):
 # set :linked_files, %w{config/database.yml}
