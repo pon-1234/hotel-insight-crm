@@ -27,13 +27,20 @@
 
 <script>
 export default {
-  props: ['question', 'qnum'],
+  props: ['question', 'qnum', 'answers'],
 
   data() {
     return {
       selectedOptions: [],
       answer: null
     };
+  },
+
+  created() {
+    if (this.answers && this.answers[this.qnum]) {
+      this.answer = this.answers[this.qnum].answer;
+      this.selectedOptions = this.answers[this.qnum].answer.split(',');
+    }
   },
 
   watch: {

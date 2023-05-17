@@ -111,6 +111,7 @@ class User::SurveysController < User::ApplicationController
       params.permit(
         :id,
         :folder_id,
+        :type,
         :name,
         :banner_url,
         :title,

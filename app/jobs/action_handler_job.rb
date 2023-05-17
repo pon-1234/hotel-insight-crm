@@ -37,6 +37,8 @@ class ActionHandlerJob < ApplicationJob
           Postback::SetupReminderHandler.new(@friend, action_content).perform
         when 'scoring'
           Postback::ScoringHandler.new(@friend, action_content).perform
+        when 'precheckin'
+          Postback::SendPrecheckinHandler.new(@friend, action_content).perform
         when 'rsv_intro'
           Postback::SendReservationInstructionHandler.new(@friend, action_content).perform
         when 'rsv_bookmark'

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module SurveysHelper
-  def build_answer(survey, params)
+  def build_answer(survey, params, precheckin_id = nil)
     friend = LineFriend.find_by(line_user_id: params[:friend_id])
     old_response = SurveyResponse.find_by(survey: survey, line_friend: friend)
     if old_response.present? && !survey.re_answer?
@@ -10,6 +10,7 @@ module SurveysHelper
     # Create a new response
     response = SurveyResponse.new(survey: survey, line_friend: friend)
     response.answer_count = 1
+    response.reservation_precheckin_id = precheckin_id
     response.save!
 
     answer_params = params[:answers]
@@ -29,6 +30,65 @@ module SurveysHelper
       assign_variable(friend, variable['id'], survey_answer) if variable.present? && variable['id'].present?
     end
     AfterAnsweredSurveyJob.perform_later(response.id)
+  end
+
+  def update_answer(survey, survey_answers, params)
+    friend = LineFriend.find_by(line_user_id: params[:friend_id])
+    old_response = SurveyResponse.find_by(survey: survey, line_friend: friend)
+    if old_response.present? && !survey.re_answer?
+      return raise 'You are already responsed!'
+    end
+    response = SurveyResponse.find_by(survey_id: survey.id, line_friend_id: friend.id)
+
+    answer_params = params[:answers]
+    start_with_question = answer_params.keys.first.to_i
+    survey_answers.each_with_index do |survey_answer, index|
+      question = SurveyQuestion.find(survey_answer.survey_question_id)
+
+      ans = answer_params[(index + start_with_question).to_s][:answer]
+      if question.file? && ans.present?
+        survey_answer.file.purge
+        survey_answer.file = ans
+      else
+        survey_answer.answer = ans
+      end
+      survey_answer.save!
+
+      variable = question.content['variable']
+      assign_variable(friend, variable['id'], survey_answer) if variable.present? && variable['id'].present?
+    end
+    AfterAnsweredSurveyJob.perform_later(response.id)
+  end
+
+  def fill_answers_default_questions(reservation_precheckin)
+      %w[name phone_number check_in_date check_out_date address gender birthdate companion].each.with_index(1) do |attr, index|
+        @answers[index.to_s] = { answer: reservation_precheckin[attr] }
+      end
+  end
+
+  def fill_answers_sub_questions(survey_answers)
+    survey_answers.offset(8).includes(:file_blob, file_attachment: [:blob])&.each.with_index(9) do |answer, index|
+      if answer.file_blob.present?
+        @answers[index.to_s] = { answer: answer.file_blob.filename.to_s }
+      else
+        @answers[index.to_s] = { answer: answer.answer }
+      end
+    end
+  end
+
+  def filter_answers(p, start_with_question)
+    reservation_precheckin_params = {}
+
+    %w[address gender birthdate companion].each.with_index(start_with_question) do |attr, index|
+      reservation_precheckin_params[attr] = get_answer(index, p[:answers])
+    end
+
+    answers_params = {
+      answers: p[:answers].select { |k, v| k.to_i >= start_with_question },
+      code: p[:code],
+      friend_id: p[:friend_id]
+    }
+    [reservation_precheckin_params, answers_params]
   end
 
   private

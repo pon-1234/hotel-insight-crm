@@ -110,6 +110,13 @@
             <span>空室待ち履歴</span>
           <% end %>
         </li>
+         <!-- 事前チェックイン -->
+        <li class="side-nav-item <%= controller?("user/precheckins") ? 'mm-active' : '' %>">
+          <%= link_to user_precheckins_path, class: "side-nav-link #{controller?("user/precheckins" ) ? 'active' : '' }" do %>
+            <i class="uil-ticket"></i>
+            <span>事前チェックイン</span>
+          <% end %>
+        </li>
 
         <li class="side-nav-title side-nav-item" hidden>サービス評価</li>
         <li class="side-nav-item <%= controller?("user/reviews") ? 'mm-active' : '' %>" hidden>

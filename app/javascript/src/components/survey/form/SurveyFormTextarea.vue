@@ -18,7 +18,13 @@
 
 <script>
 export default {
-  props: ['question', 'qnum'],
+  props: ['question', 'qnum', 'answers'],
+
+  created() {
+    if (this.answers && this.answers[this.qnum]) {
+      this.answer = this.answers[this.qnum].answer;
+    }
+  },
 
   computed: {
     isRequired() {

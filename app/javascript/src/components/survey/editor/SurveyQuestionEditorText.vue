@@ -12,6 +12,7 @@
           placeholder="項目名を入力してください"
           v-validate="'required|max:255'"
           data-vv-as="項目名"
+          :readonly="immutable"
         />
         <error-message :message="errors.first(name + '-text')"></error-message>
       </div>
@@ -33,6 +34,7 @@
           maxlength="256"
           v-validate="'max:255'"
           data-vv-as="補足文"
+          :readonly="immutable"
         />
         <error-message :message="errors.first(name + '-subtext')"></error-message>
       </div>
@@ -53,7 +55,7 @@
 
 <script>
 export default {
-  props: ['content', 'name'],
+  props: ['content', 'name', 'immutable'],
   data() {
     return {
       value: this.content || {

@@ -123,7 +123,6 @@
 <script>
 import { mapActions, mapMutations, mapState } from 'vuex';
 import Util from '@/core/util';
-import moment from 'moment-timezone';
 
 export default {
   props: {

@@ -31,9 +31,15 @@ Rails.application.routes.draw do
   get 'surveys/:code/:friend_id/answer_success', to: 'surveys#answer_success', as: 'survey_answer_success'
   get 'surveys/:code/:friend_id/answer_error', to: 'surveys#answer_error', as: 'survey_answer_error'
   get 'surveys/:code/:friend_id/already_answer', to: 'surveys#already_answer', as: 'survey_already_answer'
+  post 'surveys/precheckin/:code/:friend_id', to: 'surveys#precheckin', as: 'survey_precheckin_form'
+  post 'surveys/precheckin_answer/:code/:friend_id', to: 'surveys#precheckin_answer', as: 'survey_precheckin_answer_form'
   # reservations
+  get 'reservations/precheckin_form/:friend_line_id', to: 'reservations#precheckin_form', as: 'reservation_precheckin_form'
   get 'reservations/inquiry_form/:friend_line_id', to: 'reservations#inquiry_form', as: 'reservation_inquiry_form'
+  get 'reservations/precheckin_success', to: 'reservations#precheckin_success', as: 'reservation_precheckin_success'
   get 'reservations/inquiry_success', to: 'reservations#inquiry_success', as: 'reservation_inquiry_success'
+  post 'reservations/precheckin_detail/:friend_line_id',  to: 'reservations#precheckin_detail', as: 'reservation_precheckin_detail'
+  post 'reservations/precheckin/:friend_line_id',  to: 'reservations#precheckin', as: 'reservation_precheckin'
   post 'reservations/inquire/:friend_line_id',  to: 'reservations#inquire', as: 'reservation_inquire'
   post 'reservations/callback', to: 'reservations#callback', as: 'reservation_callback'
   # service_reviews
@@ -157,6 +163,7 @@ Rails.application.routes.draw do
         resources :episodes
       end
       resources :reservations
+      resources :precheckins
       resources :reviews, only: :index
       resources :variables do
         member do

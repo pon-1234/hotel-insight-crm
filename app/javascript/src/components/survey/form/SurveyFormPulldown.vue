@@ -14,7 +14,7 @@
 
 <script>
 export default {
-  props: ['question', 'qnum'],
+  props: ['question', 'qnum', 'answers'],
 
   data() {
     return {
@@ -23,7 +23,11 @@ export default {
   },
 
   created() {
-    this.answer = this.options && this.options.length > 0 ? this.options[0].value : null;
+    if (this.answers && this.answers[this.qnum]) {
+      this.answer = this.answers[this.qnum].answer;
+    } else {
+      this.answer = this.options && this.options.length > 0 ? this.options[0].value : null;
+    }
   },
 
   computed: {

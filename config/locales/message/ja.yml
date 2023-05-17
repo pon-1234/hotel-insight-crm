@@ -18,3 +18,6 @@ ja:
       scenario_end: "シナリオが終了しました：【%{title}】"
       survey: "回答フォームに回答しました：【%{name}】"
       reminder: "リマインドが配信されました：【%{title}】"
+    precheckin:
+      create_success: '事前チェックインが完了しました。'
+      update_success: '事前チェックイン情報が変更されました。'

@@ -2,7 +2,7 @@
   <div>
     <label>アクション</label>
     <div>
-      <select v-model="postbackType" class="w-100 form-control" @change="changeActionType">
+      <select v-model="postbackType" class="w-100 form-control" @change="changeActionType" :disabled="immutable">
         <option v-for="(val, key) of types" :key="key" :value="key">{{ val }}</option>
       </select>
     </div>
@@ -60,6 +60,10 @@ export default {
     requiredLabel: {
       type: Boolean,
       default: true
+    },
+    immutable: {
+      type: Boolean,
+      default: false
     }
   },
   inject: ['parentValidator'],

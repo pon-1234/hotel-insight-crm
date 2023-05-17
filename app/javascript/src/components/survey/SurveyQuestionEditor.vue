@@ -4,22 +4,24 @@
       <div class="card-header d-flex">
         <h5 class="survey-title">質問 {{ index + 1 }}</h5>
         <div class="ml-auto">
-          <div class="btn btn-sm btn-light" @click="copyObject(index)">
-            <i class="mdi mdi-content-copy"></i>
-          </div>
-          <div @click="moveUpObject(index)" class="btn btn-sm btn-light" v-if="index > 0">
-            <i class="dripicons-chevron-up"></i>
-          </div>
-          <div
-            type="button"
-            @click="moveDownObject(index)"
-            class="btn btn-sm btn-light"
-            v-if="index < objectLists.length - 1"
-          >
-            <i class="dripicons-chevron-down"></i>
-          </div>
-          <div @click="removeObject(index)" v-if="objectLists.length > 1" class="btn btn-sm btn-light">
-            <i class="mdi mdi-delete"></i>
+          <div v-if="!object.immutable">
+            <div class="btn btn-sm btn-light" @click="copyObject(index)">
+              <i class="mdi mdi-content-copy"></i>
+            </div>
+            <div @click="moveUpObject(index)" class="btn btn-sm btn-light" v-if="(surveyType == 'normal' && index > 0) || (surveyType == 'precheckin' && index > 8)">
+              <i class="dripicons-chevron-up"></i>
+            </div>
+            <div
+              type="button"
+              @click="moveDownObject(index)"
+              class="btn btn-sm btn-light"
+              v-if="index < objectLists.length - 1"
+            >
+              <i class="dripicons-chevron-down"></i>
+            </div>
+            <div @click="removeObject(index)" v-if="objectLists.length > 1" class="btn btn-sm btn-light">
+              <i class="mdi mdi-delete"></i>
+            </div>
           </div>
         </div>
       </div>
@@ -33,6 +35,7 @@
               object.editing = true;
             "
             class="form-control flex-grow-1"
+            :disabled="object.immutable"
           >
             <option value="text">記述式（１行回答）</option>
             <option value="textarea">段落（複数行回答）</option>
@@ -51,6 +54,7 @@
               class="custom-control-input"
               :id="`questionRequiredCheck${index}`"
               v-model="object.required"
+              :disabled="object.immutable"
             />
             <label class="custom-control-label" :for="`questionRequiredCheck${index}`"> 必須</label>
           </div>
@@ -61,6 +65,7 @@
             :name="name + '-text-' + index"
             :content="object.content"
             @input="object.content = $event"
+            :immutable="object.immutable"
             v-if="object.type === 'text'"
           ></survey-question-editor-text>
 
@@ -90,6 +95,7 @@
             :name="name + '-pulldown-' + index"
             :content="object.content"
             @input="object.content = $event"
+            :immutable="object.immutable"
             v-else-if="object.type === 'pulldown'"
           ></survey-question-editor-pulldown>
 
@@ -111,6 +117,7 @@
             :name="name + '-date-' + index"
             :content="object.content"
             @input="object.content = $event"
+            :immutable="object.immutable"
             v-else-if="object.type === 'date'"
           ></survey-question-editor-date>
 
@@ -139,7 +146,7 @@
 
 <script>
 export default {
-  props: ['data', 'name'],
+  props: ['data', 'name', 'surveyType'],
   data() {
     return {
       contentKey: 0,

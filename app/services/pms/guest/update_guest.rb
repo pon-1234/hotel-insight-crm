@@ -8,7 +8,7 @@ class Pms::Guest::UpdateGuest < Pms::BaseRequest
       headers: auth_header.merge('Content-Type' => 'application/json', 'accept' => 'application/json'),
       body: guest_info.to_json
     }
-    response = self.class.patch "/guests/#{pms_guest_id}", options
+    response = self.class.put "/guests/#{pms_guest_id}", options
     raise Common::PmsApiError.new(response.message) if response.code != 200
     JSON.parse response.body
   rescue => exception

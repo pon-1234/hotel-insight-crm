@@ -22,18 +22,25 @@
 
 <script>
 import { Datetime } from 'vue-datetime';
+import moment from 'moment-timezone';
 
 export default {
   components: {
     Datetime
   },
 
-  props: ['question', 'qnum'],
+  props: ['question', 'qnum', 'answers'],
 
   data() {
     return {
       answer: null
     };
+  },
+
+  created() {
+    if (this.answers && this.answers[this.qnum]) {
+      this.answer = moment.tz(this.answers[this.qnum].answer, 'HH:mm', 'Asia/Tokyo').format();
+    }
   },
 
   computed: {
