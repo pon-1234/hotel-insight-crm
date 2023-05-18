@@ -32,13 +32,20 @@ module SurveysHelper
     AfterAnsweredSurveyJob.perform_later(response.id)
   end
 
-  def update_answer(survey, survey_answers, params)
+  def update_answer(survey, survey_answers, params, precheckin_id)
     friend = LineFriend.find_by(line_user_id: params[:friend_id])
     old_response = SurveyResponse.find_by(survey: survey, line_friend: friend)
     if old_response.present? && !survey.re_answer?
       return raise 'You are already responsed!'
     end
-    response = SurveyResponse.find_by(survey_id: survey.id, line_friend_id: friend.id)
+    response = SurveyResponse.find_by(survey_id: survey.id, line_friend_id: friend.id, reservation_precheckin_id: precheckin_id)
+    if response.nil?
+      # Create a new response for new responder
+      response = SurveyResponse.new(survey: survey, line_friend: friend)
+      response.answer_count = 1
+      response.reservation_precheckin_id = precheckin_id
+      response.save!
+    end
 
     answer_params = params[:answers]
     start_with_question = answer_params.keys.first.to_i

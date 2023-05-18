@@ -85,7 +85,7 @@ class SurveysController < ApplicationController
       precheckin.update(reservation_precheckin_params)
       survey_answers = precheckin.survey_responses&.find_by(survey_id: @survey.id)&.survey_answers
       if survey_answers.present?
-        update_answer(@survey, survey_answers.offset(start_with_question - 1), answers_params)
+        update_answer(@survey, survey_answers.offset(start_with_question - 1), answers_params, precheckin.id)
       else
         build_answer(@survey, p, precheckin.id)
       end
