@@ -15,7 +15,7 @@ module User::MessagesHelper
   end
 
   def normalize_messages_with_survey_action(channel, messages)
-    messages = messages.dup
+    messages = Marshal.load(Marshal.dump messages)
     messages.extend Hashie::Extensions::DeepLocate
     # Find all postback action
     survey_actions = messages.deep_locate -> (key, value, object) { key.eql?('type') && value.eql?('survey') }
