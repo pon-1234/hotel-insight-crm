@@ -24,7 +24,14 @@ class SurveysController < ApplicationController
     redirect_if_already_answered
 
     if @survey.type == 'precheckin'
-      render :precheckin_form
+      if @friend.line_account.pms_api_key.present?
+        render :precheckin_form
+      else
+        @have_api_key = false
+        @answers = {}
+        (1..8).each { |i| @answers[i.to_s] = { answer: nil } }
+        render :precheckin_detail_form
+      end
     end
   end
 

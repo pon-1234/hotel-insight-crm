@@ -38,7 +38,7 @@
       </div>
       <div>
         <survey-question-header :question="survey.questions[2]" :qnum="3"></survey-question-header>
-        <ValidationProvider name="チェックイン日" rules="required" v-slot="{ errors }">
+        <ValidationProvider name="チェックイン日" :rules="{ required: dateRequired }" v-slot="{ errors }">
           <div class="form-group mt-2 position-relative">
             <datetime
               input-class="form-control btn border border-light text-left"
