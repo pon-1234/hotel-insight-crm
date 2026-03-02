@@ -23,6 +23,7 @@ Rails.application.routes.draw do
   # webhooks
   post 'webhooks/:key', to: 'webhooks#index'
   post 'webhooks/push', to: 'webhooks#push'
+  post 'internal/dispatches/broadcasts', to: 'internal/dispatches#broadcasts'
 
   # surveys
   get 'surveys/:code/:friend_id', to: 'surveys#form', as: 'new_survey_answer_form'

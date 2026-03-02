@@ -9,13 +9,18 @@ class DispatchBroadcastJob < ApplicationJob
 
   def perform(broadcast_id)
     @broadcast = Broadcast.find(broadcast_id)
-    # Change broadcast status to sending
-    @broadcast.update_columns(status: 'sending', deliver_at: Time.zone.now)
+
+    # Atomically claim pending broadcast to prevent duplicate delivery.
+    claimed = Broadcast.where(id: @broadcast.id, status: 'pending')
+      .update_all(status: 'sending', deliver_at: Time.zone.now)
+    return if claimed.zero?
+
+    @broadcast.reload
     success = dispatch_to_all if @broadcast.broadcast_type_all?
     success = dispatch_with_condition if @broadcast.broadcast_type_condition?
     @broadcast.update_columns(status: success ? 'done' : 'error')
   rescue
-    @broadcast.update_columns(status: 'error')
+    @broadcast&.update_columns(status: 'error')
   end
 
   # send message to every friends of line official account
