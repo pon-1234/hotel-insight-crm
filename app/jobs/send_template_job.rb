@@ -2,7 +2,7 @@
 
 class SendTemplateJob < ApplicationJob
   sidekiq_options retry: false
-  queue_as :default
+  queue_as :critical
 
   include User::MessagesHelper
 
