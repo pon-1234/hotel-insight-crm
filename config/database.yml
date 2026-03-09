@@ -22,7 +22,7 @@ development:
   username: <%= ENV['DATABASE_USERNAME'] %>
   password: <%= ENV['DATABASE_PASSWORD'] %>
   database: <%= ENV['DATABASE_NAME'] %>
-  host: <%= ENV.fetch("DATABASE_HOST") %>
+  host: <%= ENV.fetch("DATABASE_HOST", "localhost") %>
 
 # Warning: The database defined as "test" will be erased and
 # re-generated from your development database when you run "rake".
@@ -34,7 +34,7 @@ test:
   username: <%= ENV['DATABASE_USERNAME'] %>
   password: <%= ENV['DATABASE_PASSWORD'] %>
   database: <%= ENV['DATABASE_NAME'] %>_test
-  host: <%= ENV.fetch("DATABASE_HOST") %>
+  host: <%= ENV.fetch("DATABASE_HOST", "localhost") %>
 
 production:
   <<: *default
@@ -42,5 +42,6 @@ production:
   collation: utf8mb4_unicode_ci
   username: <%= ENV['DATABASE_USERNAME'] %>
   password: <%= ENV['DATABASE_PASSWORD'] %>
-  host: <%= ENV['DATABASE_HOST'] %>
+  socket: <%= ENV['DATABASE_SOCKET'] if ENV['DATABASE_SOCKET'] && !ENV['DATABASE_SOCKET'].empty? %>
+  host: <%= ENV['DATABASE_HOST'] if !ENV['DATABASE_SOCKET'] || ENV['DATABASE_SOCKET'].empty? %>
   database: <%= ENV['DATABASE_NAME'] %>

@@ -2,12 +2,11 @@
 
 class Subdomain::AgencyConstraint
   def matches?(request)
-    # if Rails.env.production?
-    #   request.subdomain.include?('admin')
-    # else
-    #   request.subdomain.blank?
-    # end
-    true
+    if Rails.env.production?
+      request.subdomain.include?('agency') || request.subdomain.blank?
+    else
+      request.subdomain.blank?
+    end
   end
 
   def self.path

@@ -36,3 +36,26 @@ sidekiq
 ```
 cap staging deploy
 ```
+
+- Cloud Run (stg)
+
+Staging domains:
+
+- https://admin.stg.hatamotohq.com
+- https://user.stg.hatamotohq.com
+- https://agency.stg.hatamotohq.com
+
+Recommended env vars for stg:
+
+- MIX_ROOT_PATH=
+- DOMAIN=https://admin.stg.hatamotohq.com
+
+Deploy (buildpacks):
+
+```
+gcloud run deploy hotel-insight-crm-stg \
+  --source . \
+  --region asia-northeast1 \
+  --project lucky-display-390005 \
+  --set-env-vars MIX_ROOT_PATH=,DOMAIN=https://admin.stg.hatamotohq.com
+```

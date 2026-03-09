@@ -29,7 +29,7 @@ environment.plugins.prepend('VueLoaderPlugin', new VueLoaderPlugin());
 
 environment.plugins.prepend(
   'Environment',
-  new webpack.EnvironmentPlugin(process.env)
+  new webpack.EnvironmentPlugin(Object.assign({ MIX_ROOT_PATH: '' }, process.env))
 );
 
 environment.loaders.prepend('vue', vue);
