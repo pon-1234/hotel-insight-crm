@@ -6,6 +6,7 @@ class StreamRoutesController < ApplicationController
 
   def show
     @stream_route = StreamRoute.find_by code: params[:stream_route_code]
+    @resolved_liff_id = params[:liff_id].presence || @stream_route&.client&.line_account&.liff_id.to_s
     if params[:friendship_status_changed] && params[:line_user_id]
       @line_friend = LineFriend.find_by!(line_user_id: params[:line_user_id])
       # in case line friend is added first time then

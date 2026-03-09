@@ -12,7 +12,7 @@
     </div>
     <div v-show="notAddFriend">
       <div class="alert alert-warning alert-dismissible fade show" role="alert">
-        リンクに失敗しました
+        {{ errorMessage }}
         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -28,7 +28,8 @@ export default {
   data() {
     return {
       rootPath: process.env.MIX_ROOT_PATH,
-      notAddFriend: false
+      notAddFriend: false,
+      errorMessage: 'リンクに失敗しました。時間を空けて再度お試しください。'
     };
   },
 
@@ -45,7 +46,12 @@ export default {
       liff.closeWindow();
       return;
     }
-    const liffId = this.liff_id || localStorage.getItem('currentLiffId');
+    const liffId = (this.liff_id || localStorage.getItem('currentLiffId') || '').trim();
+    if (!liffId) {
+      this.notAddFriend = true;
+      this.errorMessage = 'LIFF ID が未設定です。管理画面で LIFF ID を設定してください。';
+      return;
+    }
     liff.init({ liffId: liffId })
       .then(() => {
         if (!liff.isLoggedIn()) {
@@ -58,6 +64,11 @@ export default {
               if (this.friendship_status_changed === 'true') {
                 // for first time officer account is added as friend
                 const currentStreamRouteCode = localStorage.getItem('currentStreamRouteCode');
+                if (!currentStreamRouteCode) {
+                  this.notAddFriend = true;
+                  this.errorMessage = '流入経路コードを取得できませんでした。再度リンクを開いてください。';
+                  return;
+                }
                 localStorage.removeItem('currentStreamRouteCode');
                 localStorage.removeItem('currentLiffId');
                 window.location.href = `${this.rootPath}/stream_route_detail/${currentStreamRouteCode}?line_user_id=${userId}&friendship_status_changed=true&added_friend_before=true`;
@@ -66,6 +77,11 @@ export default {
                 // Only available when chose アクションの実行 -> いつでも
                 // need to add added_friend_before param to avoid infinite loop
                 const currentStreamRouteCode = localStorage.getItem('currentStreamRouteCode');
+                if (!currentStreamRouteCode) {
+                  this.notAddFriend = true;
+                  this.errorMessage = '流入経路コードを取得できませんでした。再度リンクを開いてください。';
+                  return;
+                }
                 localStorage.removeItem('currentStreamRouteCode');
                 localStorage.removeItem('currentLiffId');
                 window.location.href = `${this.rootPath}/stream_route_detail/${currentStreamRouteCode}?line_user_id=${userId}&added_friend_before=true`;
@@ -87,6 +103,8 @@ export default {
       })
       .catch((err) => {
         console.log(err);
+        this.notAddFriend = true;
+        this.errorMessage = 'LIFF の初期化に失敗しました。URL と LIFF ID の設定を確認してください。';
       });
   }
 };
