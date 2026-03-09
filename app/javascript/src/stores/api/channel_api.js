@@ -55,7 +55,7 @@ export default {
       url: `${process.env.MIX_ROOT_PATH}/user/channels/${payload.channel_id}/messages/send_scenario`,
       method: 'POST',
       data: JSON.stringify(payload),
-      dataType: 'jsonp',
+      dataType: 'json',
       contentType: 'application/json'
     });
   },
