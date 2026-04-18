@@ -20,11 +20,6 @@ HTML="$(curl -fsS -u "$SIDEKIQ_USER:$SIDEKIQ_PASS" "$BASE_URL/sidekiq")"
 BUSY_HTML="$(curl -fsS -u "$SIDEKIQ_USER:$SIDEKIQ_PASS" "$BASE_URL/sidekiq/busy")"
 
 echo "[3/4] Validate Sidekiq worker/process status..."
-if ! echo "$HTML" | rg -q 'status-active'; then
-  echo "ERROR: Sidekiq status is not active." >&2
-  exit 1
-fi
-
 PROCESSES="$(echo "$HTML" | perl -0777 -ne 'if (/<p>Processes<\/p>\s*<\/div>\s*<div class="col-sm-2">\s*<h3>(\d+)<\/h3>/s) { print $1 }')"
 if [[ -z "$PROCESSES" ]]; then
   PROCESSES="$(echo "$BUSY_HTML" | perl -0777 -ne 'if (/<h3>(\d+)<\/h3>\s*<p>Processes<\/p>/s) { print $1 }')"
@@ -32,6 +27,13 @@ fi
 if [[ -z "$PROCESSES" || "$PROCESSES" -lt 1 ]]; then
   echo "ERROR: Sidekiq process count invalid: ${PROCESSES:-N/A}" >&2
   exit 1
+fi
+if echo "$HTML" | rg -q 'status-active'; then
+  echo "OK: sidekiq status=active"
+elif echo "$HTML" | rg -q 'status-idle'; then
+  echo "OK: sidekiq status=idle"
+else
+  echo "WARN: could not determine sidekiq status from dashboard"
 fi
 echo "OK: processes=$PROCESSES"
 

@@ -20,7 +20,7 @@ script/ops/post_deploy_sidekiq_check.sh
 ```
 
 Expected:
-- Sidekiq status `active`
+- Sidekiq status `active` or `idle`
 - Processes `>= 1`
 - Enqueued ideally `0` (or decreasing)
 

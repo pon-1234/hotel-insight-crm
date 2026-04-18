@@ -31,6 +31,16 @@ class PushMessageToLineJob < ApplicationJob
       Rails.logger.error(
         "[PushMessageToLineJob] reply failed channel_id=#{@channel.id} messages_count=#{messages.size}"
       )
+      Ops::SlackAlertNotifier.notify_once(
+        key: 'line-reply-failed',
+        ttl: Integer(ENV.fetch('SLACK_ALERT_LINE_FAILURE_TTL', 300)),
+        text: [
+          'LINE reply failed.',
+          "channel_id=#{@channel.id}",
+          "line_account_id=#{@line_account.id}",
+          "messages_count=#{messages.size}"
+        ].join("\n")
+      )
       return
     end
     store_messages(messages)
@@ -42,6 +52,16 @@ class PushMessageToLineJob < ApplicationJob
       unless success
         Rails.logger.error(
           "[PushMessageToLineJob] push failed channel_id=#{@channel.id} messages_count=#{grouped_messages.size}"
+        )
+        Ops::SlackAlertNotifier.notify_once(
+          key: 'line-push-failed',
+          ttl: Integer(ENV.fetch('SLACK_ALERT_LINE_FAILURE_TTL', 300)),
+          text: [
+            'LINE push failed.',
+            "channel_id=#{@channel.id}",
+            "line_account_id=#{@line_account.id}",
+            "messages_count=#{grouped_messages.size}"
+          ].join("\n")
         )
         return
       end

@@ -1,5 +1,5 @@
 verbose: false
-concurrency: 10
+concurrency: <%= Integer(ENV.fetch("SIDEKIQ_CONCURRENCY", 10)) %>
 pidfile: ./tmp/pids/sidekiq.pid
 logfile: ./log/sidekiq.log
 queues:
@@ -11,9 +11,9 @@ queues:
   - active_storage_purge
   - low
 production:
-  concurrency: 25
+  concurrency: <%= Integer(ENV.fetch("SIDEKIQ_CONCURRENCY", 5)) %>
 staging:
-  concurrency: 15
+  concurrency: <%= Integer(ENV.fetch("SIDEKIQ_CONCURRENCY", 15)) %>
 
 :schedule:
   DispatchBroadcastWorker:
@@ -68,4 +68,10 @@ staging:
     cron: "0 * * * * *" # Runs every minute
     include_metadata: true
     description: "This worker get quota consumption of accounts"
+    enabled: true
+
+  SidekiqHealthCheckWorker:
+    cron: "0 * * * * *" # Runs every minute
+    include_metadata: true
+    description: "This worker notifies slack when sidekiq queue or errors look unhealthy"
     enabled: true
